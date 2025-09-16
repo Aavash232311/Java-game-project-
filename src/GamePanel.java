@@ -81,10 +81,6 @@ class Frame {
             */
 
 
-//            for (Point p : check) {
-//                g.setColor(Color.GREEN);
-//                g.drawRect(p.x, p.y, stdSize, stdSize);
-//            }
             g.setColor(Color.YELLOW);
 
             if (changeIn != null && changeTo != null) {
