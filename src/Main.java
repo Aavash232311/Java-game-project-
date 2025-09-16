@@ -1,6 +1,5 @@
 /* Introduction to programming in Java, end semester project.
 * Beginner level project, so I might end up doing things in un efficient way but still learning.
-* Objective: build logical thinking, thats the beauty.
 * */
 
 // No tutorial watched, our goal is to fours on logical thinking.

@@ -25,8 +25,8 @@ class Frame {
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
             /* In our pacman game we need to draw some fix boundaries, which we are going to declare some
              * fix coordinates here */
-            // init delay: 30
-            Timer timer = new Timer(130, this);
+            // init delay: 20
+            Timer timer = new Timer(180, this);
             timer.start();
         }
         final int stdSize = 10;
@@ -35,8 +35,11 @@ class Frame {
         int initX = 80;
         int initY = 50;
         int direction = 1;
-        int changeDirectionWithin = 3;
+        int changeDirectionWithin = 5;
         ArrayList<Point> moveable = new ArrayList<>();
+        ArrayList<Point> check = new ArrayList<>();
+
+        Point lastGrid = new Point();
 
         Point changeIn = null;
         Point changeTo = null;
@@ -65,7 +68,9 @@ class Frame {
                 vectorChange(3);
             }
         }
-        /* Here we write the movement logic */
+
+        /* Whole idea here is to loop through few blocks and in each block check the turn direction and check if that point lies in our
+        * array of moveable. */
         private void movementLogic(Grid grid, Graphics g) {
             ArrayList<Point> moveable = grid.getGrid();
             this.moveable = moveable;
@@ -75,13 +80,15 @@ class Frame {
             * the coordinates of our character with the items in our array list.
             */
 
-            if (moveable.contains(new Point(initX, initY))) {
-                g.setColor(Color.RED);
-            } else {
-                g.setColor(Color.YELLOW);
-            }
+
+//            for (Point p : check) {
+//                g.setColor(Color.GREEN);
+//                g.drawRect(p.x, p.y, stdSize, stdSize);
+//            }
+            g.setColor(Color.YELLOW);
 
             if (changeIn != null && changeTo != null) {
+                /* Here this init x is the coordinate of the near end of the block. */
                 if (changeIn.x == initX && changeIn.y == initY) {
                     /* now we change the directions  */
                     direction = requestedVector;
@@ -91,7 +98,7 @@ class Frame {
                 }
             }
 
-            /* like in the original pac man game we might want to check if the pac man is in the whats called
+            /* like in the original pac man game we might want to check if the pac man is in the what's called
             * an edge or on the border box we want it to stop so let's check that in the same way we did when adding movement logic. */
 
             if ((!moveable.contains(new Point(initX + vectorX[direction], initY + vectorY[direction])))) {
@@ -99,7 +106,11 @@ class Frame {
             }
 
 
-            g.drawRect(initX, initY, stdSize, stdSize);
+            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
+
+            if (moveable.contains(new Point(initX, initY))) {
+                lastGrid = new Point(initX, initY);
+            }
 
             initX += vectorX[direction];
             initY += vectorY[direction];
@@ -131,7 +142,6 @@ class Frame {
 
             *  */
 
-
             // if going to the opposite direction or turning around we don't want to see for the 5 blocks.
             if (direction == 0 && vectorChangeMag == 3) {
                 changeDirectionWithin = 0; // meaning turn around is instant
@@ -144,6 +154,10 @@ class Frame {
             }
 
             if (vectorChangeMag == direction) return; // if in same direction then we don't want to do any operation
+
+            /* What we can do is we can like round of the block he is in. So that the movement is accurate, when he wants to move.
+             * We can try that. we keep track of last coordinate in the gird and calculate from there.  */
+
             int projectedX = initX;
             int projectedY = initY;
 
@@ -154,17 +168,20 @@ class Frame {
             ArrayList<Point> turnPointInRange = new ArrayList<>();
             ArrayList<Point> changeDirectionInRange = new ArrayList<>();
 
-            while (count <=  changeDirectionWithin) {
+            while ((count) <=  changeDirectionWithin) {
                 /* we want to continue movement in current direction and check for movement. */
                 /* and now check if the block in which he wants to go up or down, or left or right lies in the maize,
                 * and then when the character lies in the edge we can change the direction. */
 
                 // here we check the direction which the user is trying to move contains in a predefined gird
-                reqX = projectedX + vectorX[vectorChangeMag];
+                reqX = projectedX + vectorX[vectorChangeMag]; // proj x (current coordinate) and other part is what if we change direction.
                 reqY = projectedY + vectorY[vectorChangeMag];
 
-                Point currentPoint = new Point(reqX, reqY);
+                Point currentPoint = new Point(reqX, reqY); // this is the point if it was to turn
+                check.add(currentPoint);
                 if (moveable.contains(currentPoint)) {
+                    /* Sometimes we might be able to turn in different points within some blocks apart that are close.
+                    * In that case we store and find the minimum so we can take the nearest exit. */
                     if (!(turnPointInRange.contains(currentPoint))) {
                         turnPointInRange.add(currentPoint);
                         changeDirectionInRange.add(new Point(projectedX, projectedY));
@@ -178,7 +195,6 @@ class Frame {
             }
             changeDirectionWithin = 5; // reset that
 
-
             /* Here we are getting the list of points from where we can turn, why we are doing that can be addressed in the
             * line, 108,
             * given that the problem is addressed.
@@ -186,13 +202,15 @@ class Frame {
             * even if its listed far in the array we need to turn. we might want to check like how many blocks we might need to reach
             * the particular point  */
             ArrayList<Integer> costArray = new ArrayList<>();
+
             for (Point turnPoint: turnPointInRange) {
                 // current position of the character, we need to find the nearest edge wrt to the current position.
                 costArray.add(blockCost(turnPoint, vectorChangeMag));
             }
+            if (costArray.isEmpty()) return;
             int minValue = Collections.min((costArray));
             int indexOfMin = costArray.indexOf(minValue);
-
+            System.out.println(turnPointInRange.toString() + " " + indexOfMin);
             changeTo = turnPointInRange.get(indexOfMin); // both the index is same since the size of List in same in both case
             changeIn = changeDirectionInRange.get((indexOfMin));
             requestedVector = vectorChangeMag;
@@ -210,7 +228,6 @@ class Frame {
             while (true) {
 
                 Point checkPoint = new Point(currentCharacterPositionX + vectorX[requestedMagnitude], currentCharacterPositionY + vectorY[requestedMagnitude]);
-
                 if (finalPoint.equals(checkPoint)) {
                     break;
                 }
@@ -221,7 +238,6 @@ class Frame {
                 currentCharacterPositionY += vectorY[direction];
                 count++;
             }
-
             return count;
         }
 
