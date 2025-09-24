@@ -60,6 +60,7 @@ public class Grid {
         int[] line14 = drawGrid(line13[0], line13[1], 3, 4);
         int[] line15 = drawGrid(line13[0], line13[1], 2, 10);
         int[] line16 = drawGrid(line15[0], line15[1], 2, 7);
+        int[] line17 = drawGrid(line15[0] - 10, line15[1], 0, 9); // hard code which I hate, should I have commented this line referees to what in a map
         /* Before we draw and realize we made smth wrong we will write here the movement logic fast may in other java file */
     }
 

@@ -104,7 +104,7 @@ class Frame {
                 boolean secondEscapePoint = new Point(530, 120).equals(new Point(initX, initY));
                 if (firstEscapeThreshold) {
                     /* we know the fact that we are in the point where we need to respawn the character back of the maize,
-                     * point pre defined 530, 120  */
+                     * point pre-defined 530, 120  */
                     direction = 2;
                     initX = 530;
                     initY = 120;
