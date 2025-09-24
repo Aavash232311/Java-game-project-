@@ -29,9 +29,10 @@ class Frame {
             Timer timer = new Timer(180, this);
             timer.start();
         }
+
         final int stdSize = 10;
-        int[] vectorX = new int[] {0, stdSize, -stdSize, 0, 0};
-        int[] vectorY = new int[] {stdSize, 0, 0, -stdSize, 0};
+        int[] vectorX = new int[]{0, stdSize, -stdSize, 0, 0};
+        int[] vectorY = new int[]{stdSize, 0, 0, -stdSize, 0};
         int initX = 80;
         int initY = 50;
         int direction = 1;
@@ -48,8 +49,8 @@ class Frame {
         int frameCount = 1;
 
         /*
-        * This a concept from the snake game I made, earlier in my projects
-        * if we have vectorX[0] and vectorY[0] then we have no increment on x but on Y */
+         * This a concept from the snake game I made, earlier in my projects
+         * if we have vectorX[0] and vectorY[0] then we have no increment on x but on Y */
         @Override
         public void keyTyped(KeyEvent e) {
 
@@ -60,25 +61,25 @@ class Frame {
             /* key code: 40 = down */
             if (e.getKeyCode() == 40) {
                 vectorChange(0);
-            }else if (e.getKeyCode() == 37) {
+            } else if (e.getKeyCode() == 37) {
                 vectorChange(2);
-            }else if (e.getKeyCode() == 39) {
+            } else if (e.getKeyCode() == 39) {
                 vectorChange(1);
-            }else if (e.getKeyCode() == 38) {
+            } else if (e.getKeyCode() == 38) {
                 vectorChange(3);
             }
         }
 
         /* Whole idea here is to loop through few blocks and in each block check the turn direction and check if that point lies in our
-        * array of moveable. */
+         * array of moveable. */
         private void movementLogic(Grid grid, Graphics g) {
             ArrayList<Point> moveable = grid.getGrid();
             this.moveable = moveable;
             /* Okay from my previous project experience: if this was running in 1FPS then,
-            * what would be is the position of our character would perfectly align with our grid.
-            * Since it's running in a high frame rate the increment of rate is a bit smooth and once in a while
-            * the coordinates of our character with the items in our array list.
-            */
+             * what would be is the position of our character would perfectly align with our grid.
+             * Since it's running in a high frame rate the increment of rate is a bit smooth and once in a while
+             * the coordinates of our character with the items in our array list.
+             */
 
 
             g.setColor(Color.YELLOW);
@@ -95,15 +96,30 @@ class Frame {
             }
 
             /* like in the original pac man game we might want to check if the pac man is in the what's called
-            * an edge or on the border box we want it to stop so let's check that in the same way we did when adding movement logic. */
+             * an edge or on the border box we want it to stop so let's check that in the same way we did when adding movement logic. */
 
             if ((!moveable.contains(new Point(initX + vectorX[direction], initY + vectorY[direction])))) {
-                direction = 4;
+                /* 30, 80 one escape portal */
+                boolean firstEscapeThreshold = new Point(30, 80).equals(new Point(initX, initY));
+                boolean secondEscapePoint = new Point(530, 120).equals(new Point(initX, initY));
+                if (firstEscapeThreshold) {
+                    /* we know the fact that we are in the point where we need to respawn the character back of the maize,
+                     * point pre defined 530, 120  */
+                    direction = 2;
+                    initX = 530;
+                    initY = 120;
+                } else if (secondEscapePoint) {
+                    direction = 1;
+                    initX = 30; initY = 80;
+                } else {
+                    direction = 4;
+                }
             }
-
-
+            /* Here we want to create a point from which we can send the character to the other end like a portal,
+             * for that we need to predefine such grid and teleport the characters. If the character is going towards that point
+             * that we define in a direction variable we can send that charter to the other end. Normally we stop at the edge but in the
+             * predefined case we can teleport the character through the portal */
             g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
-
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
             }
@@ -141,11 +157,11 @@ class Frame {
             // if going to the opposite direction or turning around we don't want to see for the 5 blocks.
             if (direction == 0 && vectorChangeMag == 3) {
                 changeDirectionWithin = 0; // meaning turn around is instant
-            }else if (direction == 1 && vectorChangeMag == 2) {
+            } else if (direction == 1 && vectorChangeMag == 2) {
                 changeDirectionWithin = 0;
-            }else if (direction == 2 && vectorChangeMag == 1) {
+            } else if (direction == 2 && vectorChangeMag == 1) {
                 changeDirectionWithin = 0;
-            }else if (direction == 3 && vectorChangeMag == 0) {
+            } else if (direction == 3 && vectorChangeMag == 0) {
                 changeDirectionWithin = 0;
             }
 
@@ -164,10 +180,10 @@ class Frame {
             ArrayList<Point> turnPointInRange = new ArrayList<>();
             ArrayList<Point> changeDirectionInRange = new ArrayList<>();
 
-            while ((count) <=  changeDirectionWithin) {
+            while ((count) <= changeDirectionWithin) {
                 /* we want to continue movement in current direction and check for movement. */
                 /* and now check if the block in which he wants to go up or down, or left or right lies in the maize,
-                * and then when the character lies in the edge we can change the direction. */
+                 * and then when the character lies in the edge we can change the direction. */
 
                 // here we check the direction which the user is trying to move contains in a predefined gird
                 reqX = projectedX + vectorX[vectorChangeMag]; // proj x (current coordinate) and other part is what if we change direction.
@@ -177,7 +193,7 @@ class Frame {
                 check.add(currentPoint);
                 if (moveable.contains(currentPoint)) {
                     /* Sometimes we might be able to turn in different points within some blocks apart that are close.
-                    * In that case we store and find the minimum so we can take the nearest exit. */
+                     * In that case we store and find the minimum so we can take the nearest exit. */
                     if (!(turnPointInRange.contains(currentPoint))) {
                         turnPointInRange.add(currentPoint);
                         changeDirectionInRange.add(new Point(projectedX, projectedY));
@@ -192,21 +208,20 @@ class Frame {
             changeDirectionWithin = 5; // reset that
 
             /* Here we are getting the list of points from where we can turn, why we are doing that can be addressed in the
-            * line, 108,
-            * given that the problem is addressed.
-            * we might want to, calculate the cost, if the cost is less meaning if it takes less time to turn in a point
-            * even if its listed far in the array we need to turn. we might want to check like how many blocks we might need to reach
-            * the particular point  */
+             * line, 108,
+             * given that the problem is addressed.
+             * we might want to, calculate the cost, if the cost is less meaning if it takes less time to turn in a point
+             * even if its listed far in the array we need to turn. we might want to check like how many blocks we might need to reach
+             * the particular point  */
             ArrayList<Integer> costArray = new ArrayList<>();
 
-            for (Point turnPoint: turnPointInRange) {
+            for (Point turnPoint : turnPointInRange) {
                 // current position of the character, we need to find the nearest edge wrt to the current position.
                 costArray.add(blockCost(turnPoint, vectorChangeMag));
             }
             if (costArray.isEmpty()) return;
             int minValue = Collections.min((costArray));
             int indexOfMin = costArray.indexOf(minValue);
-            System.out.println(turnPointInRange.toString() + " " + indexOfMin);
             changeTo = turnPointInRange.get(indexOfMin); // both the index is same since the size of List in same in both case
             changeIn = changeDirectionInRange.get((indexOfMin));
             requestedVector = vectorChangeMag;
