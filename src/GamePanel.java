@@ -26,7 +26,7 @@ class Frame {
             /* In our pacman game we need to draw some fix boundaries, which we are going to declare some
              * fix coordinates here */
             // init delay: 20
-            Timer timer = new Timer(180, this);
+            Timer timer = new Timer(100, this);
             timer.start();
         }
 
@@ -254,7 +254,7 @@ class Frame {
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g); // calling the constructor from the super class
+            super.paintComponent(g); // calling the constructor from the super class, for cleaning content in the canvas
 
             Graphics2D g2 = (Graphics2D) g; // graphics 2d have more features like transformation and more. So we are converting it.
             g2.setStroke(new BasicStroke(5)); // thickness of line

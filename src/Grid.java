@@ -60,7 +60,18 @@ public class Grid {
         int[] line14 = drawGrid(line13[0], line13[1], 3, 4);
         int[] line15 = drawGrid(line13[0], line13[1], 2, 10);
         int[] line16 = drawGrid(line15[0], line15[1], 2, 7);
-        int[] line17 = drawGrid(line15[0] - 10, line15[1], 0, 9); // hard code which I hate, should I have commented this line referees to what in a map
+        int[] line17 = drawGrid(line15[0] - 10, line15[1], 0, 8); // hard code which I hate, should I have commented this line referees to what in a map
+        int[] line18 = drawGrid(line17[0], line17[1], 1, 11); // horizontal line middle
+        int[] line19 = drawGrid(line18[0], line18[1], 3, 8);
+        int[] line20 = drawGrid(line18[0], line18[1], 1, 5);
+        int[] line21 = drawGrid(line20[0], line20[1], 3, 4); // middle slice
+        int[] line22 = drawGrid(line21[0], line21[1], 2, 1);
+        int[] line23 = drawGrid(line21[0], line21[1], 2, 12);
+        int[] line24 = drawGrid(line21[0], line21[1], 3, 5);
+        int[] line25 = drawGrid(line23[0], line23[1], 3, 4);
+        int[] line26 = drawGrid(line21[0], line21[1], 1, 8);
+        int[] line27 = drawGrid(line26[0], line26[1], 0, 4);
+        int[] line28 = drawGrid(line27[0], line27[1], 1, 8);
         /* Before we draw and realize we made smth wrong we will write here the movement logic fast may in other java file */
     }
 
