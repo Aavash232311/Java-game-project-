@@ -144,7 +144,7 @@ class Frame {
 
             try {
                 Image bg = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
-                new Timer(2000, e -> { // this thing runs every 2000ms i.e. 2 seconds
+                new Timer(800, e -> { // this thing runs every 2000ms i.e. 2 seconds
                     characterTextureIndex++;
                     if (characterTextureIndex > characterTextureSeq.size() - 1) {
                         characterTextureIndex = 0;
@@ -160,13 +160,19 @@ class Frame {
                  * v = (-1, 0) -> theta = pi -> 180 (left)
                  * v = (0, -1) -> theta = -pi/2 -> -90 or 270 okay and the way we move direction in the same is through "Std size"
                  * now what we can do is convert that into 0, or 1. If something is greater than 0 then 1. because of that we are getting incorrect transformation,
-                 * so I simply created another array to reduce runtime and code complexity, okay to woks little better
+                 * so I simply created another array to reduce runtime and code complexity, okay to woks little better,
+                 *
+                 * Problem: when switching between the textures there is a glitch weird, okay, so I tried to use only one texture, so I am sure
+                 * that its not the problem with the coordinates, also to be noted that the transformation is not perfectly transformed.
+                 * The problem is the way I downloaded the textures it's not symmetric alr neither is the switching texture
                 */
 
                 double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
-                ((Graphics2D) g).rotate(angle, initX + (stdSize + 4)/2.0, initY + (stdSize + 4)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
+                System.out.println(angle);
+                ((Graphics2D) g).rotate(angle, initX + (stdSize + 3)/2.0, initY + (stdSize + 3)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
                 // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
-                g.drawImage(bg, initX, initY, stdSize + 4, stdSize + 4, this);
+                g.drawImage(bg, initX, initY, stdSize + 3, stdSize + 3, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
+                // we have a problem the character glitches
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
