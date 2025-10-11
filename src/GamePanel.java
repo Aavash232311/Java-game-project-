@@ -51,6 +51,7 @@ class Frame {
         ArrayList<Point> check = new ArrayList<>();
 
         Point lastGrid = new Point();
+        final int stdTrim = 3; // some constant for making sure the character fits
 
         Point changeIn = null;
         Point changeTo = null;
@@ -142,8 +143,11 @@ class Frame {
              * is significant only in the main character, since it's just a circle,
              * we can use the arc tangent formula */
 
+            // this block for flipping back and forth between the textures so that it looks like the character is making movements.
             try {
-                Image bg = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
+                Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
+                Image o1 = ImageIO.read(new File("./textures/o1.png"));
+                Image o2 = ImageIO.read(new File("./textures/o2.png"));
                 new Timer(800, e -> { // this thing runs every 2000ms i.e. 2 seconds
                     characterTextureIndex++;
                     if (characterTextureIndex > characterTextureSeq.size() - 1) {
@@ -168,11 +172,13 @@ class Frame {
                 */
 
                 double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
-                System.out.println(angle);
-                ((Graphics2D) g).rotate(angle, initX + (stdSize + 3)/2.0, initY + (stdSize + 3)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
+                ((Graphics2D) g).rotate(angle, initX + (stdSize + stdTrim)/2.0, initY + (stdSize + stdTrim)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
                 // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
-                g.drawImage(bg, initX, initY, stdSize + 3, stdSize + 3, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
-                // we have a problem the character glitches
+                g.drawImage(main_character, initX, initY, stdSize + 3, stdSize + 3, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
+
+                /* We can span all the opponent on 430, 120 */
+                g.setColor(Color.RED);
+                g.drawImage(o1,430, 120, stdSize + stdTrim, stdSize + stdTrim, this);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
