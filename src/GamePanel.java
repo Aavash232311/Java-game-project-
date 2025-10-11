@@ -40,6 +40,9 @@ class Frame {
         final int stdSize = 10;
         int[] vectorX = new int[]{0, stdSize, -stdSize, 0, 0};
         int[] vectorY = new int[]{stdSize, 0, 0, -stdSize, 0};
+
+        int[] vectorXBin = new int[] {0, 1, -1, 0, 0};
+        int[] vectorYBin = new int[] {1, 0, 0, -1, 0};
         int initX = 80;
         int initY = 50;
         int direction = 1;
@@ -60,6 +63,14 @@ class Frame {
         @Override
         public void keyTyped(KeyEvent e) {
 
+        }
+
+        private double degreeToRad(double theta) {
+            return theta * (180/Math.PI);
+        }
+
+        private double arcTangent(int y, int x) { // this will return in degree, since I will make it return
+            return degreeToRad(Math.atan2(y, x));
         }
 
         @Override
@@ -126,6 +137,11 @@ class Frame {
              * for that we need to predefine such grid and teleport the characters. If the character is going towards that point
              * that we define in a direction variable we can send that charter to the other end. Normally we stop at the edge but in the
              * predefined case we can teleport the character through the portal */
+
+            /* Here what we can do is flip the character image based on the direction we are going, this
+             * is significant only in the main character, since it's just a circle,
+             * we can use the arc tangent formula */
+
             try {
                 Image bg = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
                 new Timer(2000, e -> { // this thing runs every 2000ms i.e. 2 seconds
@@ -135,6 +151,21 @@ class Frame {
                     }
                 }).start();
 
+                /*
+                 * thera = arc tan2(dy,dx), the result is in rad, so we need to explicitly convert to degree,
+                 * this concept is something new, so I will label it here okay, so staring off with how we define the movement logic in our program,
+                 * THE INCREMENT AND DECREMENT OF THE CHARACTER ON THE RESPECTED AXIS DEPENDS ON THE TWO, VECTOR-X AND VECTOR-Y variables.
+                 * v = (1,0) -> theta = 0 rad -> 0 deg (right)
+                 * v = (0, 1) -> theta = pi/2 -> 90 degree
+                 * v = (-1, 0) -> theta = pi -> 180 (left)
+                 * v = (0, -1) -> theta = -pi/2 -> -90 or 270 okay and the way we move direction in the same is through "Std size"
+                 * now what we can do is convert that into 0, or 1. If something is greater than 0 then 1. because of that we are getting incorrect transformation,
+                 * so I simply created another array to reduce runtime and code complexity, okay to woks little better
+                */
+
+                double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
+                ((Graphics2D) g).rotate(angle, initX + (stdSize + 4)/2.0, initY + (stdSize + 4)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
+                // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
                 g.drawImage(bg, initX, initY, stdSize + 4, stdSize + 4, this);
             } catch (IOException e) {
                 throw new RuntimeException(e);
