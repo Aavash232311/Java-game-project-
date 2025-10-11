@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -99,7 +100,8 @@ class Frame {
              * Since it's running in a high frame rate the increment of rate is a bit smooth and once in a while
              * the coordinates of our character with the items in our array list.
              */
-
+            Graphics2D g2d = (((Graphics2D) g));
+            AffineTransform oldTransform = g2d.getTransform();
 
             g.setColor(Color.BLUE);
 
@@ -148,6 +150,8 @@ class Frame {
                 Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
                 Image o1 = ImageIO.read(new File("./textures/o1.png"));
                 Image o2 = ImageIO.read(new File("./textures/o2.png"));
+                Image o3 = ImageIO.read(new File("./textures/o3.png"));
+                Image o4 = ImageIO.read(new File("./textures/o4.png"));
                 new Timer(800, e -> { // this thing runs every 2000ms i.e. 2 seconds
                     characterTextureIndex++;
                     if (characterTextureIndex > characterTextureSeq.size() - 1) {
@@ -172,13 +176,13 @@ class Frame {
                 */
 
                 double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
-                ((Graphics2D) g).rotate(angle, initX + (stdSize + stdTrim)/2.0, initY + (stdSize + stdTrim)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
+                g2d.rotate(angle, initX + (stdSize + stdTrim)/2.0, initY + (stdSize + stdTrim)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
                 // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
                 g.drawImage(main_character, initX, initY, stdSize + 3, stdSize + 3, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
-
+                g2d.setTransform(oldTransform); // when we transform using the arc tangent 2 function it glitches so we are re-storing the old transform state so it does not affect our opponent character
                 /* We can span all the opponent on 430, 120 */
                 g.setColor(Color.RED);
-                g.drawImage(o1,430, 120, stdSize + stdTrim, stdSize + stdTrim, this);
+                g.drawImage(o3,430, 120, stdSize + stdTrim, stdSize + stdTrim, this);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
