@@ -1,3 +1,5 @@
+import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -19,7 +21,6 @@ public class Grid {
     }
 
     private final ArrayList<Point> moveable = new ArrayList<>(); // using point because it will be easy to sort later on
-
     // creating this method to automate the hard code needed to draw the grid in which the pac man moves.
     private int[] drawGrid(int x, int y, int moveIndex, int repeat) {
         final int size = 10;

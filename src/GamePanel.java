@@ -1,9 +1,12 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 /* According to my experience making these small projects in different languages,
@@ -18,8 +21,12 @@ import java.util.Collections;
 class Frame {
     // static class is a nested class in java, compared to what I was used to in c#
     static class UnderFrame extends JPanel implements KeyListener, ActionListener { // interface
-
+        public final ArrayList<String> characterTextureSeq = new ArrayList<>();
+        public int characterTextureIndex = 0;
         public UnderFrame() {
+            // okay so we need to add the character texture in sequences, we can create index and character can loop back and forth between the textures
+            characterTextureSeq.add("./textures/character_open.png");
+            characterTextureSeq.add("./textures/character_open_full.png");
             setFocusable(true);
             requestFocusInWindow();
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
@@ -47,7 +54,6 @@ class Frame {
         int requestedVector = -1;
 
         int frameCount = 1;
-
         /*
          * This a concept from the snake game I made, earlier in my projects
          * if we have vectorX[0] and vectorY[0] then we have no increment on x but on Y */
@@ -70,6 +76,7 @@ class Frame {
             }
         }
 
+
         /* Whole idea here is to loop through few blocks and in each block check the turn direction and check if that point lies in our
          * array of moveable. */
         private void movementLogic(Grid grid, Graphics g) {
@@ -82,7 +89,7 @@ class Frame {
              */
 
 
-            g.setColor(Color.YELLOW);
+            g.setColor(Color.BLUE);
 
             if (changeIn != null && changeTo != null) {
                 /* Here this init x is the coordinate of the near end of the block. */
@@ -119,7 +126,20 @@ class Frame {
              * for that we need to predefine such grid and teleport the characters. If the character is going towards that point
              * that we define in a direction variable we can send that charter to the other end. Normally we stop at the edge but in the
              * predefined case we can teleport the character through the portal */
-            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
+            try {
+                Image bg = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
+                new Timer(2000, e -> { // this thing runs every 2000ms i.e. 2 seconds
+                    characterTextureIndex++;
+                    if (characterTextureIndex > characterTextureSeq.size() - 1) {
+                        characterTextureIndex = 0;
+                    }
+                }).start();
+
+                g.drawImage(bg, initX, initY, stdSize + 4, stdSize + 4, this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+//            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
             }
