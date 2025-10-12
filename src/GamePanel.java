@@ -20,6 +20,38 @@ import java.util.Collections;
 
 // the points here does not work like the xy plane in maths its like a single quadrant graph, with (0,0) at the top
 class Frame {
+    /* we need to return this object because when we find that we could change range within a certain point then we need to reuse that code in our
+    * enemy logic. Following that "Don't repeat yourself" principle we can recycle that. I need to document this code inorder for me to understand if I went on
+    * vacation for 1 month and comeback again. */
+    static class VectorChangeRangeParams {
+        public boolean vectorChange = false; // that's that default state
+        public Point currentPoint;
+        final int[] coordinate = new int[2];
+
+        public void setCoordinateProjected(int x, int y) {
+            coordinate[0] = x;
+            coordinate[1] = y;
+        }
+
+        public int[] getCoordinate() {
+            return this.coordinate;
+        }
+
+        // not loading the constructor because we need to initialize this object in our method
+        public void setCurrentPoint(Point point) { // I don't know but that's how getter and setter should work here
+            this.currentPoint = point;
+        }
+        public void setRange(boolean r) {
+            this.vectorChange = r;
+        }
+
+        public boolean inRange() {
+            return this.vectorChange;
+        }
+        public Point currentPoint() {
+            return this.currentPoint;
+        }
+    }
     // static class is a nested class in java, compared to what I was used to in c#
     static class UnderFrame extends JPanel implements KeyListener, ActionListener { // interface
         public final ArrayList<String> characterTextureSeq = new ArrayList<>();
@@ -219,12 +251,43 @@ class Frame {
          *
          * if we did it with new method it increases the run time complexity and stuff because we would need to loop again and again */
 
+        private VectorChangeRangeParams vectorChangeRange(int vectorChangeMag) { // we might want to reuse this because we need to use this logic in our enemy code, which might run every frame to check and randomly generate a change.
+            // this vector change mag is generated randomly with natural length of array - 1, because the last index of array is simply to stop
+            int count = 0;
+            int projectedX = initX;
+            int projectedY = initY;
+
+            int reqX;
+            int reqY;
+            VectorChangeRangeParams changeP = new VectorChangeRangeParams();
+
+            while ((count) <= changeDirectionWithin) {
+                reqX = projectedX + vectorX[vectorChangeMag]; // proj x (current coordinate) and other part is what if we change direction.
+                reqY = projectedY + vectorY[vectorChangeMag];
+                Point currentPoint = new Point(reqX, reqY);
+                if (moveable.contains(currentPoint)) {
+                    /* Sometimes we might be able to turn in different points within some blocks apart that are close.
+                     * In that case we store and find the minimum so we can take the nearest exit. */
+                    changeP.setRange(true);
+                    changeP.setCurrentPoint(currentPoint);
+                    break; // no need to go further
+                }
+
+                // here we move forward
+                projectedX += vectorX[direction];
+                projectedY += vectorY[direction];
+                count++;
+            }
+            changeP.setCoordinateProjected(projectedX, projectedY);
+            return changeP;
+        }
+
         private void vectorChange(int vectorChangeMag) {
             /*
             The idea here is to check if withing few blocks of request direction change the item lies in the array,
             since the user can't directly click in perfect time.
 
-            And, how we do it, in the similar way we drawn blocks in our grid class.java file. Since we didin't use some complex
+            And, how we do it, in the similar way we drawn blocks in our grid class.java file. Since we didn't use some complex
             data structures to relate and connect a maize. We could have done that in fact. I have seen course in Harvard using maize
             to visualize search algorithms like BFS and DFS in a graph.
 
@@ -253,42 +316,17 @@ class Frame {
             /* What we can do is we can like round of the block he is in. So that the movement is accurate, when he wants to move.
              * We can try that. we keep track of last coordinate in the gird and calculate from there.  */
 
-            int projectedX = initX;
-            int projectedY = initY;
-
-            int reqX;
-            int reqY;
-
-            int count = 0;
             ArrayList<Point> turnPointInRange = new ArrayList<>();
             ArrayList<Point> changeDirectionInRange = new ArrayList<>();
 
-            while ((count) <= changeDirectionWithin) {
-                /* we want to continue movement in current direction and check for movement. */
-                /* and now check if the block in which he wants to go up or down, or left or right lies in the maize,
-                 * and then when the character lies in the edge we can change the direction. */
-
-                // here we check the direction which the user is trying to move contains in a predefined gird
-                reqX = projectedX + vectorX[vectorChangeMag]; // proj x (current coordinate) and other part is what if we change direction.
-                reqY = projectedY + vectorY[vectorChangeMag];
-
-                Point currentPoint = new Point(reqX, reqY); // this is the point if it was to turn
-                check.add(currentPoint);
-                if (moveable.contains(currentPoint)) {
-                    /* Sometimes we might be able to turn in different points within some blocks apart that are close.
-                     * In that case we store and find the minimum so we can take the nearest exit. */
-                    if (!(turnPointInRange.contains(currentPoint))) {
-                        turnPointInRange.add(currentPoint);
-                        changeDirectionInRange.add(new Point(projectedX, projectedY));
-                    }
-                }
-
-                // here we move forward
-                projectedX += vectorX[direction];
-                projectedY += vectorY[direction];
-                count++;
-            }
             changeDirectionWithin = 5; // reset that
+            VectorChangeRangeParams vectorChangeParams = vectorChangeRange(vectorChangeMag);
+            if (vectorChangeParams.inRange()) {
+                Point currentPoint = vectorChangeParams.currentPoint();
+
+                turnPointInRange.add(currentPoint);
+                changeDirectionInRange.add(new Point(vectorChangeParams.getCoordinate()[0], vectorChangeParams.getCoordinate()[1]));
+            }
 
             /* Here we are getting the list of points from where we can turn, why we are doing that can be addressed in the
              * line, 108,
