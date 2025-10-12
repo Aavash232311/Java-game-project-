@@ -52,11 +52,28 @@ class Frame {
             return this.currentPoint;
         }
     }
+
+    static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
+        public final Point currentCoordinate = new Point();
+
+        public void setEnemyCoordinates(Point enemyCoordinate) {
+            this.currentCoordinate.x = enemyCoordinate.x;
+            this.currentCoordinate.y = enemyCoordinate.y;
+        }
+
+        public Point getEnemyCoordinate() { // gets the current enemy position
+            return this.currentCoordinate;
+        }
+    }
     // static class is a nested class in java, compared to what I was used to in c#
     static class UnderFrame extends JPanel implements KeyListener, ActionListener { // interface
         public final ArrayList<String> characterTextureSeq = new ArrayList<>();
         public final ArrayList<String> opponentTextureSeq = new ArrayList<>();
+        public final ArrayList<EnemyCoordinateTrack> enemyCoordinateTrack = new ArrayList<>();
         public int characterTextureIndex = 0;
+        final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
+        final int enemyPathY = 120;
+
         public UnderFrame() {
             // okay so we need to add the character texture in sequences, we can create index and character can loop back and forth between the textures
             characterTextureSeq.add("./textures/character_open.png");
@@ -67,6 +84,14 @@ class Frame {
             opponentTextureSeq.add("./textures/o2.png");
             opponentTextureSeq.add("./textures/o3.png");
             opponentTextureSeq.add("./textures/o4.png"); // here we have 4 opponents, later we define how we are going to create logic for them.
+
+            // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
+            for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
+                EnemyCoordinateTrack positionTrack = new EnemyCoordinateTrack();
+                positionTrack.setEnemyCoordinates(new Point(enemyPathX, enemyPathY));
+                enemyCoordinateTrack.add(positionTrack); // this is the default enemy position based on the texture size i.e how many enemy is there we span each of them from a fixed coordinate.
+            }
+
             setFocusable(true);
             requestFocusInWindow();
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
@@ -131,8 +156,6 @@ class Frame {
 
         /* Whole idea here is to loop through few blocks and in each block check the turn direction and check if that point lies in our
          * array of moveable. */
-        final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
-        final int enemyPathY = 120;
 
         private void movementLogic(Grid grid, Graphics g) {
             ArrayList<Point> moveable = grid.getGrid();
@@ -229,7 +252,9 @@ class Frame {
                 /* It's kind of tricky the way we want to add the movement logic here,
                 *  First, when the character moves after few seconds other should move i.e. there should be spacing between the characters.
                 * Then we added that logic when we want to turn the character that logic should be there every second and we randomly pick the value where the character wants to go
-                * THe speed of the opponent should be little slower so that we can catch them and eliminate them.  */
+                * THe speed of the opponent should be little slower so that we can catch them and eliminate them.
+                *
+                * Let make one character move and after 4 sec interval another character will move.  */
 
             } catch (IOException e) {
                 throw new RuntimeException(e);
