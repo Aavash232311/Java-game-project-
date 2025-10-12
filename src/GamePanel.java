@@ -23,11 +23,18 @@ class Frame {
     // static class is a nested class in java, compared to what I was used to in c#
     static class UnderFrame extends JPanel implements KeyListener, ActionListener { // interface
         public final ArrayList<String> characterTextureSeq = new ArrayList<>();
+        public final ArrayList<String> opponentTextureSeq = new ArrayList<>();
         public int characterTextureIndex = 0;
         public UnderFrame() {
             // okay so we need to add the character texture in sequences, we can create index and character can loop back and forth between the textures
             characterTextureSeq.add("./textures/character_open.png");
             characterTextureSeq.add("./textures/character_open_full.png");
+
+            // here we add the textures for the opponent
+            opponentTextureSeq.add("./textures/o1.png");
+            opponentTextureSeq.add("./textures/o2.png");
+            opponentTextureSeq.add("./textures/o3.png");
+            opponentTextureSeq.add("./textures/o4.png"); // here we have 4 opponents, later we define how we are going to create logic for them.
             setFocusable(true);
             requestFocusInWindow();
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
@@ -92,6 +99,9 @@ class Frame {
 
         /* Whole idea here is to loop through few blocks and in each block check the turn direction and check if that point lies in our
          * array of moveable. */
+        final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
+        final int enemyPathY = 120;
+
         private void movementLogic(Grid grid, Graphics g) {
             ArrayList<Point> moveable = grid.getGrid();
             this.moveable = moveable;
@@ -148,10 +158,6 @@ class Frame {
             // this block for flipping back and forth between the textures so that it looks like the character is making movements.
             try {
                 Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
-                Image o1 = ImageIO.read(new File("./textures/o1.png"));
-                Image o2 = ImageIO.read(new File("./textures/o2.png"));
-                Image o3 = ImageIO.read(new File("./textures/o3.png"));
-                Image o4 = ImageIO.read(new File("./textures/o4.png"));
                 new Timer(800, e -> { // this thing runs every 2000ms i.e. 2 seconds
                     characterTextureIndex++;
                     if (characterTextureIndex > characterTextureSeq.size() - 1) {
@@ -171,7 +177,7 @@ class Frame {
                  * so I simply created another array to reduce runtime and code complexity, okay to woks little better,
                  *
                  * Problem: when switching between the textures there is a glitch weird, okay, so I tried to use only one texture, so I am sure
-                 * that its not the problem with the coordinates, also to be noted that the transformation is not perfectly transformed.
+                 * that it's not the problem with the coordinates, also to be noted that the transformation is not perfectly transformed.
                  * The problem is the way I downloaded the textures it's not symmetric alr neither is the switching texture
                 */
 
@@ -182,7 +188,17 @@ class Frame {
                 g2d.setTransform(oldTransform); // when we transform using the arc tangent 2 function it glitches so we are re-storing the old transform state so it does not affect our opponent character
                 /* We can span all the opponent on 430, 120 */
                 g.setColor(Color.RED);
-                g.drawImage(o3,430, 120, stdSize + stdTrim, stdSize + stdTrim, this);
+
+                for (String enemyPath: opponentTextureSeq) { // from this loop we render all the enemy
+                    Image imageEnemy = ImageIO.read(new File(enemyPath));
+                    g.drawImage(imageEnemy,enemyPathX, enemyPathY, stdSize + stdTrim, stdSize + stdTrim, this); // this is the image of our opponent, in the game
+                }
+                // todo: keep track of coordinates of all the characters alr, and then design a movement logic
+                /* It's kind of tricky the way we want to add the movement logic here,
+                *  First, when the character moves after few seconds other should move i.e. there should be spacing between the characters.
+                * Then we added that logic when we want to turn the character that logic should be there every second and we randomly pick the value where the character wants to go
+                * THe speed of the opponent should be little slower so that we can catch them and eliminate them.  */
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
