@@ -6,13 +6,16 @@
 // concept inherited from my own github repos doing smaller projects like this over the years.
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-// I am not the best programmer we could have organize things in better way but that will work for this project.
+// I am not the best programmer we could have organized things in better way but that will work for this project.
 // If we are building a scalable application we might need to take care of runtime complexity and also make code efficient to reuse.
-class LoadWindow extends JPanel {
+class LoadWindow extends JPanel implements KeyListener, ActionListener {
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -26,6 +29,21 @@ class LoadWindow extends JPanel {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println("That should work");
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 
     public void renderWindow() {
@@ -82,6 +100,11 @@ class LoadWindow extends JPanel {
 
         frame.add(this);
         frame.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        repaint();
     }
 }
 

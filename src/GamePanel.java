@@ -73,6 +73,7 @@ class Frame {
         public int characterTextureIndex = 0;
         final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
         final int enemyPathY = 120;
+        int timeCounter = 0;
 
         public UnderFrame() {
             // okay so we need to add the character texture in sequences, we can create index and character can loop back and forth between the textures
@@ -102,6 +103,12 @@ class Frame {
             timer.start();
         }
 
+        /* Okay for rendering our enemy I have faced problem, if I add the timer in the middle then it works find for the first time
+        * and then does not work in 5 sec interval for the second time. I wanted it to work like setInterval(() => {}, time) in javascript,
+        * for that let's just simple unitary method and note down the interval, okay so the initial timer runs every 0.1 sec = 100ms
+        * for 1 sec it needs to run 10 times, for 5 sec it needs to run 50times.
+        *  */
+
         final int stdSize = 10;
         int[] vectorX = new int[]{0, stdSize, -stdSize, 0, 0};
         int[] vectorY = new int[]{stdSize, 0, 0, -stdSize, 0};
@@ -113,7 +120,6 @@ class Frame {
         int direction = 1;
         int changeDirectionWithin = 5;
         ArrayList<Point> moveable = new ArrayList<>();
-        ArrayList<Point> check = new ArrayList<>();
 
         Point lastGrid = new Point();
         final int stdTrim = 3; // some constant for making sure the character fits
@@ -156,6 +162,9 @@ class Frame {
 
         /* Whole idea here is to loop through few blocks and in each block check the turn direction and check if that point lies in our
          * array of moveable. */
+
+        int enemyMoveCount = 0; // this counts how many enemy have moved in like 5 second interval
+
 
         private void movementLogic(Grid grid, Graphics g) {
             ArrayList<Point> moveable = grid.getGrid();
@@ -247,7 +256,7 @@ class Frame {
                 for (String enemyPath: opponentTextureSeq) { // from this loop we render all the enemy
                     Image imageEnemy = ImageIO.read(new File(enemyPath));
                     g.drawImage(imageEnemy,enemyPathX, enemyPathY, stdSize + stdTrim, stdSize + stdTrim, this); // this is the image of our opponent, in the game
-                }
+                } // here we have initialized the default state of our character
                 // todo: keep track of coordinates of all the characters alr, and then design a movement logic
                 /* It's kind of tricky the way we want to add the movement logic here,
                 *  First, when the character moves after few seconds other should move i.e. there should be spacing between the characters.
@@ -256,6 +265,12 @@ class Frame {
                 *
                 * Let make one character move and after 4 sec interval another character will move.  */
 
+                // okay everything apart we want the character to move in certain second interval
+                // so what we want is we want our enemy to move one after the other
+                if (timeCounter % 50 == 0 && enemyMoveCount <= opponentTextureSeq.size() - 1) {
+                    // okay so timeCounter gets incremented every 100ms at 1000ms its 1 okay if we divide by 5 when it becomes after like 5000ms then we get the reminder 0
+                    enemyMoveCount++;
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -410,6 +425,9 @@ class Frame {
             Grid maizeGrid = new Grid(g2);
             maizeGrid.buildGrid(); // after we build the grid then the coordinates get loaded here.
             movementLogic(maizeGrid, g);
+            if (enemyMoveCount <= opponentTextureSeq.size() - 1) { // no need to load memory, if all enemy have moved from their default place
+                timeCounter++; // here that count++ is done for the enemy span sequence
+            }
         }
 
         @Override
