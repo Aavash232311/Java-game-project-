@@ -79,7 +79,7 @@ class Frame {
             return this.location;
         }
 
-        public boolean move() {return this.move}
+        public boolean move() {return this.move;}
 
         public void setMove(boolean move) {
             this.move = move;
@@ -273,9 +273,15 @@ class Frame {
                 /* We can span all the opponent on 430, 120 */
                 g.setColor(Color.RED);
 
+                int enemyRenderLoopCount = 0;
                 for (String enemyPath: opponentTextureSeq) { // from this loop we render all the enemy
                     Image imageEnemy = ImageIO.read(new File(enemyPath));
-                    g.drawImage(imageEnemy,enemyPathX, enemyPathY, stdSize + stdTrim, stdSize + stdTrim, this); // this is the image of our opponent, in the game
+                    // we need to make this move
+                    EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyRenderLoopCount);
+                    Point currentEnemyPoint = currentEnemy.getEnemyCoordinate();
+
+                    g.drawImage(imageEnemy,currentEnemyPoint.x, currentEnemyPoint.y, stdSize + stdTrim, stdSize + stdTrim, this); // this is the image of our opponent, in the game
+                    enemyRenderLoopCount++;
                 } // here we have initialized the default state of our character
                 // todo: keep track of coordinates of all the characters alr, and then design a movement logic
                 /* It's kind of tricky the way we want to add the movement logic here,
@@ -300,10 +306,26 @@ class Frame {
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
             }
-
             initX += vectorX[direction];
             initY += vectorY[direction];
+
+            enemyMovementLogic(); // for better readability
             frameCount++;
+        }
+
+        private void enemyMovementLogic() {
+
+            for (EnemyCoordinateTrack currentEnemy: enemyCoordinateTrack) {
+                if (currentEnemy.move) {
+
+                    // this is for updating the coordinate
+                    Point currentPoint = currentEnemy.getEnemyCoordinate();
+                    currentPoint.x += vectorX[currentEnemy.getDirection()];
+                    currentPoint.y += vectorY[currentEnemy.getDirection()];
+                    // let's update that
+                    currentEnemy.setEnemyCoordinate(currentPoint);
+                }
+            }
         }
 
         /* another problem is okay the way we draw the grid, it's by connecting the blocks right,
