@@ -56,7 +56,6 @@ class Frame {
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
         public Point currentCoordinate = new Point();
         public int location;
-        public boolean move = false;
 
         public EnemyCoordinateTrack(Point loadedDefaultPoint) {
             this.currentCoordinate = loadedDefaultPoint;
@@ -77,12 +76,6 @@ class Frame {
 
         public int getDirection() {
             return this.location;
-        }
-
-        public boolean move() {return this.move;}
-
-        public void setMove(boolean move) {
-            this.move = move;
         }
     }
     // static class is a nested class in java, compared to what I was used to in c#
@@ -109,7 +102,7 @@ class Frame {
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
             for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
                 EnemyCoordinateTrack positionTrack = new EnemyCoordinateTrack(new Point(enemyPathX, enemyPathY));
-                positionTrack.setDirection(1); // by default the enemy moves to the right
+                positionTrack.setDirection(4); // by default the enemy moves to the right
                 enemyCoordinateTrack.add(positionTrack); // this is the default enemy position based on the texture size i.e how many enemy is there we span each of them from a fixed coordinate.
             }
 
@@ -296,7 +289,7 @@ class Frame {
                 if (timeCounter % 50 == 0 && enemyMoveCount <= opponentTextureSeq.size() - 1) {
                     // okay so timeCounter gets incremented every 100ms at 1000ms its 1 okay if we divide by 5 when it becomes after like 5000ms then we get the reminder 0
                     EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyMoveCount); // since that block runs in some interval for some amount of time we can only change the boolean here and then in the main frame where the game runs in full frame we can make the character move
-                    currentEnemy.move = true;
+                    currentEnemy.setDirection(1); // if you want to save memory then simple change the direction to 4 instead of bool
                     enemyMoveCount++;
                 }
             } catch (IOException e) {
@@ -316,7 +309,7 @@ class Frame {
         private void enemyMovementLogic() {
 
             for (EnemyCoordinateTrack currentEnemy: enemyCoordinateTrack) {
-                if (currentEnemy.move) {
+                if (currentEnemy.getDirection() != 4) { // why 4 because it increments by 0
 
                     // this is for updating the coordinate
                     Point currentPoint = currentEnemy.getEnemyCoordinate();
