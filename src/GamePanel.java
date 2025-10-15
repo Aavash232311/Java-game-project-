@@ -55,14 +55,23 @@ class Frame {
 
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
         public final Point currentCoordinate = new Point();
+        public int location;
 
-        public void setEnemyCoordinates(Point enemyCoordinate) {
-            this.currentCoordinate.x = enemyCoordinate.x;
-            this.currentCoordinate.y = enemyCoordinate.y;
+        public void setEnemyCoordinate(Point p) {
+            this.currentCoordinate.x = p.x;
+            this.currentCoordinate.y = p.y;
         }
 
         public Point getEnemyCoordinate() { // gets the current enemy position
             return this.currentCoordinate;
+        }
+
+        public void setDirection(int dir) {
+            this.location = dir;
+        }
+
+        public int getDirection() {
+            return this.location;
         }
     }
     // static class is a nested class in java, compared to what I was used to in c#
@@ -89,7 +98,8 @@ class Frame {
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
             for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
                 EnemyCoordinateTrack positionTrack = new EnemyCoordinateTrack();
-                positionTrack.setEnemyCoordinates(new Point(enemyPathX, enemyPathY));
+                positionTrack.setEnemyCoordinate(new Point(enemyPathX, enemyPathY)); // here by default the enemy moves to the right
+                positionTrack.setDirection(1); // by default the enemy moves to the right
                 enemyCoordinateTrack.add(positionTrack); // this is the default enemy position based on the texture size i.e how many enemy is there we span each of them from a fixed coordinate.
             }
 
@@ -269,6 +279,8 @@ class Frame {
                 // so what we want is we want our enemy to move one after the other
                 if (timeCounter % 50 == 0 && enemyMoveCount <= opponentTextureSeq.size() - 1) {
                     // okay so timeCounter gets incremented every 100ms at 1000ms its 1 okay if we divide by 5 when it becomes after like 5000ms then we get the reminder 0
+                    EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyMoveCount);
+                    System.out.println(currentEnemy.getDirection());
                     enemyMoveCount++;
                 }
             } catch (IOException e) {
