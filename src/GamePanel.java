@@ -268,7 +268,7 @@ class Frame {
                 double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
                 g2d.rotate(angle, initX + (stdSize + stdTrim)/2.0, initY + (stdSize + stdTrim)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
                 // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
-                g.drawImage(main_character, initX, initY, stdSize + 3, stdSize + 3, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
+                g.drawImage(main_character, initX, initY, stdSize + stdTrim, stdSize + stdTrim, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
                 g2d.setTransform(oldTransform); // when we transform using the arc tangent 2 function it glitches so we are re-storing the old transform state so it does not affect our opponent character
                 /* We can span all the opponent on 430, 120 */
                 g.setColor(Color.RED);
