@@ -54,8 +54,13 @@ class Frame {
     }
 
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
-        public final Point currentCoordinate = new Point();
+        public Point currentCoordinate = new Point();
         public int location;
+        public boolean move = false;
+
+        public EnemyCoordinateTrack(Point loadedDefaultPoint) {
+            this.currentCoordinate = loadedDefaultPoint;
+        }
 
         public void setEnemyCoordinate(Point p) {
             this.currentCoordinate.x = p.x;
@@ -72,6 +77,12 @@ class Frame {
 
         public int getDirection() {
             return this.location;
+        }
+
+        public boolean move() {return this.move}
+
+        public void setMove(boolean move) {
+            this.move = move;
         }
     }
     // static class is a nested class in java, compared to what I was used to in c#
@@ -97,8 +108,7 @@ class Frame {
 
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
             for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
-                EnemyCoordinateTrack positionTrack = new EnemyCoordinateTrack();
-                positionTrack.setEnemyCoordinate(new Point(enemyPathX, enemyPathY)); // here by default the enemy moves to the right
+                EnemyCoordinateTrack positionTrack = new EnemyCoordinateTrack(new Point(enemyPathX, enemyPathY));
                 positionTrack.setDirection(1); // by default the enemy moves to the right
                 enemyCoordinateTrack.add(positionTrack); // this is the default enemy position based on the texture size i.e how many enemy is there we span each of them from a fixed coordinate.
             }
@@ -119,9 +129,9 @@ class Frame {
         * for 1 sec it needs to run 10 times, for 5 sec it needs to run 50times.
         *  */
 
-        final int stdSize = 10;
-        int[] vectorX = new int[]{0, stdSize, -stdSize, 0, 0};
-        int[] vectorY = new int[]{stdSize, 0, 0, -stdSize, 0};
+        public final int stdSize = 10;
+        public int[] vectorX = new int[]{0, stdSize, -stdSize, 0, 0};
+        public int[] vectorY = new int[]{stdSize, 0, 0, -stdSize, 0};
 
         int[] vectorXBin = new int[] {0, 1, -1, 0, 0};
         int[] vectorYBin = new int[] {1, 0, 0, -1, 0};
@@ -279,8 +289,8 @@ class Frame {
                 // so what we want is we want our enemy to move one after the other
                 if (timeCounter % 50 == 0 && enemyMoveCount <= opponentTextureSeq.size() - 1) {
                     // okay so timeCounter gets incremented every 100ms at 1000ms its 1 okay if we divide by 5 when it becomes after like 5000ms then we get the reminder 0
-                    EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyMoveCount);
-                    System.out.println(currentEnemy.getDirection());
+                    EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyMoveCount); // since that block runs in some interval for some amount of time we can only change the boolean here and then in the main frame where the game runs in full frame we can make the character move
+                    currentEnemy.move = true;
                     enemyMoveCount++;
                 }
             } catch (IOException e) {
