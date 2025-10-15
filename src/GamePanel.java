@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 /* According to my experience making these small projects in different languages,
  * like js, python in order to draw and render something in frame we need canvas. Of course there
  * is a limitation here like let's say if we want to detect weather a complex polygon has overlapped I don't
@@ -83,6 +84,7 @@ class Frame {
         public final ArrayList<String> characterTextureSeq = new ArrayList<>();
         public final ArrayList<String> opponentTextureSeq = new ArrayList<>();
         public final ArrayList<EnemyCoordinateTrack> enemyCoordinateTrack = new ArrayList<>();
+        public final Random random = new Random();
         public int characterTextureIndex = 0;
         final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
         final int enemyPathY = 120;
@@ -306,6 +308,15 @@ class Frame {
             frameCount++;
         }
 
+        // this is for generating random values for the enemy to move excluding something
+        public int generateRandomValuesExcluding(int ex) {
+            int randomVal = random.nextInt(0, 3);
+            if (randomVal == ex) {
+                randomVal = generateRandomValuesExcluding(ex);
+            }
+            return randomVal;
+        }
+
         private void enemyMovementLogic() {
 
             for (EnemyCoordinateTrack currentEnemy: enemyCoordinateTrack) {
@@ -317,6 +328,10 @@ class Frame {
                     currentPoint.y += vectorY[currentEnemy.getDirection()];
                     // let's update that
                     currentEnemy.setEnemyCoordinate(currentPoint);
+                    /* Now we need to make the movement of the enemy random, also the speed in which enemy move should be little slower.
+                    * Because we need to catch that */
+
+                    int randomDirectionInRange = generateRandomValuesExcluding(currentEnemy.getDirection()); // can generate any random values but not in which the ghost is currently moving
                 }
             }
         }
