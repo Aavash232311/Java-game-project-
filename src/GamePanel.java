@@ -332,6 +332,9 @@ class Frame {
                     * Because we need to catch that */
 
                     int randomDirectionInRange = generateRandomValuesExcluding(currentEnemy.getDirection()); // can generate any random values but not in which the ghost is currently moving
+                    /* Hey hang on movement direction is not just random. We need to also check if we can
+                    * do in that particular random direction. Like what if we generated 1 and we can't turn left or right.
+                    * We need to call the recur until we are able to change dir */
                 }
             }
         }
