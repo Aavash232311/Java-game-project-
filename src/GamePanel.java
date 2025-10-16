@@ -29,6 +29,10 @@ class Frame {
         public Point currentPoint;
         final int[] coordinate = new int[2];
 
+        static class ChangeAndDirection {
+
+        }
+
         public void setCoordinateProjected(int x, int y) {
             coordinate[0] = x;
             coordinate[1] = y;
@@ -304,7 +308,7 @@ class Frame {
             initX += vectorX[direction];
             initY += vectorY[direction];
 
-            enemyMovementLogic(); // for better readability
+            enemyMovementLogic(g); // for better readability
             frameCount++;
         }
 
@@ -317,26 +321,55 @@ class Frame {
             return randomVal;
         }
 
-        private void enemyMovementLogic() {
+        private void enemyMovementLogic(Graphics g) {
 
             for (EnemyCoordinateTrack currentEnemy: enemyCoordinateTrack) {
                 if (currentEnemy.getDirection() != 4) { // why 4 because it increments by 0
 
                     // this is for updating the coordinate
                     Point currentPoint = currentEnemy.getEnemyCoordinate();
+                    /* Here is when things get little complicated,
+                     * How are we going to make the enemy move,
+                     * First thing is we will check if we can move, using the method "vectorChangeRange()",
+                     * That method will hold properties like how many "turning" points are in range from which we can change the range.
+                     * If it's a list then we can make choices right.
+                     *  ## There should be an option for character not to change range as well, how many ways the "ghost" can do it may run back go left right anything.
+                     *  ## When are we going to decide when the character can change the range when we have "turning points"
+                     *  ## We had that movement problem with our character where there is delay in input let's make that intentional and fix that problem here.
+                     *
+                     * Sudo code:
+                     *    First get the characters current block. And for each block that the character "ghost character" goes check left, right, up and down.
+                     *    Then add choices in an array, from there which we can shuffle and change the direction of our character " ghost character"
+                     *   */
+                    enemyMovementChoices(currentPoint, g); // it's going to check for possible options.
                     currentPoint.x += vectorX[currentEnemy.getDirection()];
                     currentPoint.y += vectorY[currentEnemy.getDirection()];
                     // let's update that
                     currentEnemy.setEnemyCoordinate(currentPoint);
-                    /* Now we need to make the movement of the enemy random, also the speed in which enemy move should be little slower.
-                    * Because we need to catch that */
-
-                    int randomDirectionInRange = generateRandomValuesExcluding(currentEnemy.getDirection()); // can generate any random values but not in which the ghost is currently moving
-                    /* Hey hang on movement direction is not just random. We need to also check if we can
-                    * do in that particular random direction. Like what if we generated 1 and we can't turn left or right.
-                    * We need to call the recur until we are able to change dir */
                 }
             }
+        }
+
+        private void enemyMovementChoices(Point currentEnemyPosition, Graphics g) {
+            // no need to external loop, it will be just increate the complexity of our code.
+            // since we won't let the enemy turn where it's not allowed to turn.
+
+            int possibleTurnOptionsRange = vectorX.length - 2; // the last one index means simply stop
+            int[] movementChoiceArray = new int[possibleTurnOptionsRange];
+
+            /* We are free to make enemy in all direction, do a 180 turn if and only if we are unable to move anywhere else.
+            * Well how do we determine if we could figure opposite of the coordinate  */
+            for (int i = 0; i <= possibleTurnOptionsRange; i++) {
+                int requestedX = currentEnemyPosition.x + vectorX[i]; // remember, vectorX and vectorY are the list of grid from which we increment or decrement
+                int requestedY = currentEnemyPosition.y + vectorY[i];
+                Point requestedPoint = new Point(requestedX, requestedY);
+
+                if (moveable.contains(requestedPoint)) {
+                    /* even though we have shined or trimmed the texture or our character its coordinate remained the same  */
+
+                }
+            }
+
         }
 
         /* another problem is okay the way we draw the grid, it's by connecting the blocks right,
