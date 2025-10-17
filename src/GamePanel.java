@@ -368,7 +368,8 @@ class Frame {
             // since we won't let the enemy turn where it's not allowed to turn.
 
             int possibleTurnOptionsRange = vectorX.length - 2; // the last one index means simply stop
-            int[] movementChoiceArray = new int[possibleTurnOptionsRange];
+            int[] movementChoiceArray = new int[] {-1, -1, -1, -1};
+            // in the above array if the enemy cannot move then its initial state will be -1
 
             /* We are free to make enemy in all direction, do a 180 turn if and only if we are unable to move anywhere else.
             * Well how do we determine if we could figure opposite of the coordinate  */
@@ -388,6 +389,13 @@ class Frame {
                     // let's figure our the current enemy direction
 
                     int getOppositeDirection = dictionaryOfOppositeTurn.get(currentEnemyDirection);
+                    // we need to exclude opposite and current direction as a choice,
+                    // we will go in opposite direction if there is no choice
+                    /* Now important part this case is only in edge */
+                    if (!(getOppositeDirection == i || currentEnemyDirection == i)) {
+                        movementChoiceArray[i] = i;
+                    }
+                    System.out.println(Arrays.toString(movementChoiceArray));
                 }
             }
         }
