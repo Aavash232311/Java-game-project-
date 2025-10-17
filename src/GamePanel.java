@@ -58,9 +58,18 @@ class Frame {
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
         public Point currentCoordinate = new Point();
         public int location;
+        public int id;
 
         public EnemyCoordinateTrack(Point loadedDefaultPoint) {
             this.currentCoordinate = loadedDefaultPoint;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return this.id;
         }
 
         public void setEnemyCoordinate(Point p) {
@@ -392,12 +401,17 @@ class Frame {
                     // we need to exclude opposite and current direction as a choice,
                     // we will go in opposite direction if there is no choice
                     /* Now important part this case is only in edge */
-                    if (!(getOppositeDirection == i || currentEnemyDirection == i)) {
+                    if (!(getOppositeDirection == i)) {
                         movementChoiceArray[i] = i;
                     }
                     /*
                     *  We will make a 180 turn only if and only if, we are in edge where the
                     * direction following the grid does not exist
+                    *  */
+                    /* Okay we are putting -1 in array whenever we cannot make a turn, if that's the case
+                    * then we need to look if we do in direction in which are going.
+                    *
+                    * if current direction is not available and no other direction is available then we need to make a 180 turn
                     *  */
                     System.out.println(Arrays.toString(movementChoiceArray));
                 }
