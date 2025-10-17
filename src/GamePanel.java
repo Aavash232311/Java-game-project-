@@ -1,5 +1,6 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,9 +9,9 @@ import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
+import java.util.HashMap;
+
 /* According to my experience making these small projects in different languages,
  * like js, python in order to draw and render something in frame we need canvas. Of course there
  * is a limitation here like let's say if we want to detect weather a complex polygon has overlapped I don't
@@ -89,8 +90,22 @@ class Frame {
         final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
         final int enemyPathY = 120;
         int timeCounter = 0;
+        Map<Integer, Integer> dictionaryOfOppositeTurn = new HashMap<>();
+        /*
+            Okay problem here is we want to turn back it loops till 5 blocks and messes things up we will fix that asap so that we wont
+            have any problems.
+            index: 0 -> opposite 3
+            index: 1 -> opposite 2
+            index: 2 -> opposite 1
+            index: 3 -> opposite 0
+         */
 
         public UnderFrame() {
+            // we are loading dictionary with opposite turn for our character
+            dictionaryOfOppositeTurn.put(0, 3); // ex: if current direction is 0 then the opposite direction is 3
+            dictionaryOfOppositeTurn.put(1, 2);
+            dictionaryOfOppositeTurn.put(2, 1);
+            dictionaryOfOppositeTurn.put(3, 0);
             // okay so we need to add the character texture in sequences, we can create index and character can loop back and forth between the textures
             characterTextureSeq.add("./textures/character_open.png");
             characterTextureSeq.add("./textures/character_open_full.png");
@@ -337,7 +352,7 @@ class Frame {
                      *    First get the characters current block. And for each block that the character "ghost character" goes check left, right, up and down.
                      *    Then add choices in an array, from there which we can shuffle and change the direction of our character " ghost character"
                      *   */
-                    enemyMovementChoices(currentPoint, g); // it's going to check for possible options.
+                    enemyMovementChoices(currentEnemy, g); // it's going to check for possible options.
                     currentPoint.x += vectorX[currentEnemy.getDirection()];
                     currentPoint.y += vectorY[currentEnemy.getDirection()];
                     // let's update that
@@ -346,7 +361,9 @@ class Frame {
             }
         }
 
-        private void enemyMovementChoices(Point currentEnemyPosition, Graphics g) {
+        private void enemyMovementChoices(EnemyCoordinateTrack currentEnemy, Graphics g) {
+            Point currentEnemyPosition = currentEnemy.getEnemyCoordinate();
+            int currentEnemyDirection = currentEnemy.getDirection();
             // no need to external loop, it will be just increate the complexity of our code.
             // since we won't let the enemy turn where it's not allowed to turn.
 
@@ -362,10 +379,17 @@ class Frame {
 
                 if (moveable.contains(requestedPoint)) {
                     /* even though we have shined or trimmed the texture or our character its coordinate remained the same  */
+                    /* If and only if we don't have options to do up down left right, we make a 180 turn.
+                    * We have defined a new hashmap putting the opposite turn so that it will be easy for us. */
 
+                    /* Turning back is always  an choice let's not put that into our random choice array alright.
+                    * if all the other choices are 0 then we can do a 180 turn. */
+
+                    // let's figure our the current enemy direction
+
+                    int getOppositeDirection = dictionaryOfOppositeTurn.get(currentEnemyDirection);
                 }
             }
-
         }
 
         /* another problem is okay the way we draw the grid, it's by connecting the blocks right,
@@ -414,14 +438,6 @@ class Frame {
             And, how we do it, in the similar way we drawn blocks in our grid class.java file. Since we didn't use some complex
             data structures to relate and connect a maize. We could have done that in fact. I have seen course in Harvard using maize
             to visualize search algorithms like BFS and DFS in a graph.
-
-            Okay problem here is we want to turn back it loops till 5 blocks and messes things up we will fix that asap so that we wont
-            have any problems.
-            index: 0 -> opposite 3
-            index: 1 -> opposite 2
-            index: 2 -> opposite 1
-            index: 3 -> opposite 0
-
             *  */
 
             // if going to the opposite direction or turning around we don't want to see for the 5 blocks.
