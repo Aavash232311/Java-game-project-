@@ -395,6 +395,10 @@ class Frame {
                     if (!(getOppositeDirection == i || currentEnemyDirection == i)) {
                         movementChoiceArray[i] = i;
                     }
+                    /*
+                    *  We will make a 180 turn only if and only if, we are in edge where the
+                    * direction following the grid does not exist
+                    *  */
                     System.out.println(Arrays.toString(movementChoiceArray));
                 }
             }
