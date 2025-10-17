@@ -29,10 +29,6 @@ class Frame {
         public Point currentPoint;
         final int[] coordinate = new int[2];
 
-        static class ChangeAndDirection {
-
-        }
-
         public void setCoordinateProjected(int x, int y) {
             coordinate[0] = x;
             coordinate[1] = y;
