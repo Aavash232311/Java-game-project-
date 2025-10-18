@@ -392,23 +392,26 @@ class Frame {
             }
             /* Here the "movementChoiceArray" is the array which results "direction integer" in the corresponding index in which our character can move.
             * Now with the few set of restrictions we need to make it go on random path.  */
-
+            int changeDirection = currentEnemyDirection;
             // For now let's see the options in which our "enemy" character can go except the current direction.
             int oppositeToTheCurrentDirection = dictionaryOfOppositeTurn.get(currentEnemyDirection);
+            // for finding where else can our character turn expect going the opposite way and going forward
             int[] choicesForEnemyExcept = Arrays.stream(movementChoiceArray).filter( x -> x != currentEnemyDirection && x != oppositeToTheCurrentDirection).toArray();
+            // to check for that where else we not to sort out where else not i.e. "-1"
+            int[] choicesLeft = Arrays.stream(choicesForEnemyExcept).filter(x -> x != -1).toArray();
+            if (choicesLeft.length > 0) {
+                // if we do have choices then
+                int randomIndex = random.nextInt(choicesLeft.length);
+                changeDirection = choicesLeft[randomIndex];
+            }
             /*
                 # Here are few set of rules that enemy will follow when moving.
                 # It's going to turn back if it cannot move in current direction it's moving and no choices are left.
             */
-
-            boolean allAreMinusOne = Arrays.stream(choicesForEnemyExcept)  // java8+
-                    .allMatch(x -> x == -1);
-            int newDirection = currentEnemyDirection;
-            if ((!allAreMinusOne)) {
-                int randomChoiceLength = random.nextInt(choicesForEnemyExcept.length);
-                newDirection = choicesForEnemyExcept[randomChoiceLength];
-            }
-            currentEnemy.setDirection(newDirection);
+            System.out.println(Arrays.toString(choicesLeft));
+//            boolean allAreMinusOne = Arrays.stream(choicesForEnemyExcept)  // we could do this manually for introductory course project but code is getting long
+//                    .allMatch(x -> x == -1);                           // and we might make mistake in small things.
+            currentEnemy.setDirection(changeDirection);
         }
 
         /*  | Index     | VectorX     |  VectorY    | Direction     |
