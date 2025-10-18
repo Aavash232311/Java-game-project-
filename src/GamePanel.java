@@ -368,6 +368,11 @@ class Frame {
                         // I forgot and some point, when we define some instance of a class, memory is allocated for that, and if we update that from here it gets updated
                         currentPoint.x += vectorX[currentEnemy.getDirection()];
                         currentPoint.y += vectorY[currentEnemy.getDirection()];
+                    }else {
+                        /* If the next step that enemy might move is "Inf", let's use that term to denote points outside "moveable" grid.
+                        * Then we simply turn back  */
+                        int turnDirection = dictionaryOfOppositeTurn.get(currentEnemy.getDirection());
+                        currentEnemy.setDirection(turnDirection); // get back then
                     }
                 }
             }
