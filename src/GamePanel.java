@@ -332,15 +332,6 @@ class Frame {
             frameCount++;
         }
 
-        // this is for generating random values for the enemy to move excluding something
-        public int generateRandomValuesExcluding(int ex) {
-            int randomVal = random.nextInt(0, 3);
-            if (randomVal == ex) {
-                randomVal = generateRandomValuesExcluding(ex);
-            }
-            return randomVal;
-        }
-
         private void enemyMovementLogic(Graphics g) {
 
             for (EnemyCoordinateTrack currentEnemy: enemyCoordinateTrack) {
@@ -416,8 +407,6 @@ class Frame {
                 # Here are few set of rules that enemy will follow when moving.
                 # It's going to turn back if it cannot move in current direction it's moving and no choices are left.
             */
-//            boolean allAreMinusOne = Arrays.stream(choicesForEnemyExcept)  // we could do this manually for introductory course project but code is getting long
-//                    .allMatch(x -> x == -1);                           // and we might make mistake in small things.
 
             currentEnemy.setDirection(changeDirection);
         }
