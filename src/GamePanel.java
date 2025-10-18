@@ -380,43 +380,44 @@ class Frame {
             int[] movementChoiceArray = new int[] {-1, -1, -1, -1};
             // in the above array if the enemy cannot move then its initial state will be -1
 
-            /* We are free to make enemy in all direction, do a 180 turn if and only if we are unable to move anywhere else.
-            * Well how do we determine if we could figure opposite of the coordinate  */
+            // straight forward this loop checks in all the possible direction if our character can go there or not
             for (int i = 0; i <= possibleTurnOptionsRange; i++) {
                 int requestedX = currentEnemyPosition.x + vectorX[i]; // remember, vectorX and vectorY are the list of grid from which we increment or decrement
                 int requestedY = currentEnemyPosition.y + vectorY[i];
                 Point requestedPoint = new Point(requestedX, requestedY);
 
                 if (moveable.contains(requestedPoint)) {
-                    /* even though we have shined or trimmed the texture or our character its coordinate remained the same  */
-                    /* If and only if we don't have options to do up down left right, we make a 180 turn.
-                    * We have defined a new hashmap putting the opposite turn so that it will be easy for us. */
-
-                    /* Turning back is always  an choice let's not put that into our random choice array alright.
-                    * if all the other choices are 0 then we can do a 180 turn. */
-
-                    // let's figure our the current enemy direction
-
-                    int getOppositeDirection = dictionaryOfOppositeTurn.get(currentEnemyDirection);
-                    // we need to exclude opposite and current direction as a choice,
-                    // we will go in opposite direction if there is no choice
-                    /* Now important part this case is only in edge */
-                    if (!(getOppositeDirection == i)) {
-                        movementChoiceArray[i] = i;
-                    }
-                    /*
-                    *  We will make a 180 turn only if and only if, we are in edge where the
-                    * direction following the grid does not exist
-                    *  */
-                    /* Okay we are putting -1 in array whenever we cannot make a turn, if that's the case
-                    * then we need to look if we do in direction in which are going.
-                    *
-                    * if current direction is not available and no other direction is available then we need to make a 180 turn
-                    *  */
-                    System.out.println(Arrays.toString(movementChoiceArray));
+                    movementChoiceArray[i] = i;
                 }
             }
+            /* Here the "movementChoiceArray" is the array which results "direction integer" in the corresponding index in which our character can move.
+            * Now with the few set of restrictions we need to make it go on random path.  */
+
+            // For now let's see the options in which our "enemy" character can go except the current direction.
+            int oppositeToTheCurrentDirection = dictionaryOfOppositeTurn.get(currentEnemyDirection);
+            int[] choicesForEnemyExcept = Arrays.stream(movementChoiceArray).filter( x -> x != currentEnemyDirection && x != oppositeToTheCurrentDirection).toArray();
+            /*
+                # Here are few set of rules that enemy will follow when moving.
+                # It's going to turn back if it cannot move in current direction it's moving and no choices are left.
+            */
+
+            boolean allAreMinusOne = Arrays.stream(choicesForEnemyExcept)  // java8+
+                    .allMatch(x -> x == -1);
+            int newDirection = currentEnemyDirection;
+            if ((!allAreMinusOne)) {
+                int randomChoiceLength = random.nextInt(choicesForEnemyExcept.length);
+                newDirection = choicesForEnemyExcept[randomChoiceLength];
+            }
+            currentEnemy.setDirection(newDirection);
         }
+
+        /*  | Index     | VectorX     |  VectorY    | Direction     |
+            | --------- | ----------- | ----------- | ------------- |
+            | 0         | 0           | 2           | Up            |
+            | 1         | 1           | 0           | Right         |
+            | 2         | 1           | 0           | Left          |
+            | 3         | 0           | 1           | Down          |
+         */
 
         /* another problem is okay the way we draw the grid, it's by connecting the blocks right,
          * and if we loop and connect when changing the direction the character might move on the far end
