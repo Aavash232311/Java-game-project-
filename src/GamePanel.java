@@ -362,10 +362,13 @@ class Frame {
                      *    Then add choices in an array, from there which we can shuffle and change the direction of our character " ghost character"
                      *   */
                     enemyMovementChoices(currentEnemy, g); // it's going to check for possible options.
-                    currentPoint.x += vectorX[currentEnemy.getDirection()];
-                    currentPoint.y += vectorY[currentEnemy.getDirection()];
-                    // let's update that
-                    currentEnemy.setEnemyCoordinate(currentPoint);
+                    // if the next step of our enemy is going out of grid then we need to make sure it's withing the grid.
+                    // just like we did with the last index of vector-x and vector-y for our main character
+                    if ((moveable.contains(new Point(currentPoint.x + vectorX[currentEnemy.getDirection()], currentPoint.y + vectorY[currentEnemy.getDirection()])))) {
+                        // I forgot and some point, when we define some instance of a class, memory is allocated for that, and if we update that from here it gets updated
+                        currentPoint.x += vectorX[currentEnemy.getDirection()];
+                        currentPoint.y += vectorY[currentEnemy.getDirection()];
+                    }
                 }
             }
         }
@@ -408,9 +411,9 @@ class Frame {
                 # Here are few set of rules that enemy will follow when moving.
                 # It's going to turn back if it cannot move in current direction it's moving and no choices are left.
             */
-            System.out.println(Arrays.toString(choicesLeft));
 //            boolean allAreMinusOne = Arrays.stream(choicesForEnemyExcept)  // we could do this manually for introductory course project but code is getting long
 //                    .allMatch(x -> x == -1);                           // and we might make mistake in small things.
+
             currentEnemy.setDirection(changeDirection);
         }
 
