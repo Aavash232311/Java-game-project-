@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /* According to my experience making these small projects in different languages,
  * like js, python in order to draw and render something in frame we need canvas. Of course there
@@ -401,7 +402,8 @@ class Frame {
             if (choicesLeft.length > 0) {
                 // if we do have choices then
                 int randomIndex = random.nextInt(choicesLeft.length);
-                changeDirection = choicesLeft[randomIndex];
+                // here if we have the options then computer does not have to turn it can continue to go in its original path as well so we can again make a choice
+                changeDirection = ThreadLocalRandom.current().nextBoolean() ? choicesLeft[randomIndex] : currentEnemyDirection; // choice between ture and false and we choose either of them
             }
             /*
                 # Here are few set of rules that enemy will follow when moving.
@@ -413,7 +415,7 @@ class Frame {
 
         /*  | Index     | VectorX     |  VectorY    | Direction     |
             | --------- | ----------- | ----------- | ------------- |
-            | 0         | 0           | 2           | Up            |
+            | 0         | 0           | 1           | Up            |
             | 1         | 1           | 0           | Right         |
             | 2         | 1           | 0           | Left          |
             | 3         | 0           | 1           | Down          |
