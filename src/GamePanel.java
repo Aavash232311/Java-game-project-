@@ -204,6 +204,7 @@ class Frame {
          * array of moveable. */
 
         int enemyMoveCount = 0; // this counts how many enemy have moved in like 5 second interval
+        float enemySpeed = 0.5f;
 
 
         private void movementLogic(Grid grid, Graphics g) {
@@ -328,8 +329,9 @@ class Frame {
             }
             initX += vectorX[direction];
             initY += vectorY[direction];
-
-            enemyMovementLogic(g); // for better readability
+            if (frameCount % 2 == 0) {
+                enemyMovementLogic(g); // for better readability
+            }
             frameCount++;
         }
 
