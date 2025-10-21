@@ -323,6 +323,13 @@ class Frame {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+            if (testMarker.size() > 0) {
+                for (Point point: testMarker) {
+                    g.setColor(Color.PINK);
+                    g.drawRect(point.x, point.y, stdSize, stdSize);
+                }
+            }
 //            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
@@ -461,89 +468,41 @@ class Frame {
             return changeP;
         }
 
+        ArrayList<Point> testMarker = new ArrayList<>();
+
         private void vectorChange(int vectorChangeMag) {
-            /*
-            The idea here is to check if withing few blocks of request direction change the item lies in the array,
-            since the user can't directly click in perfect time.
+            /* In our earlier code we did things in the "hard" way. Now what can we do is first,
+            * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
+            Point currentCharacterPoint = new Point(initX, initY);
+            int reqX = currentCharacterPoint.x, reqY = currentCharacterPoint.y, count = 0;
 
-            And, how we do it, in the similar way we drawn blocks in our grid class.java file. Since we didn't use some complex
-            data structures to relate and connect a maize. We could have done that in fact. I have seen course in Harvard using maize
-            to visualize search algorithms like BFS and DFS in a graph.
-            *  */
+            Point turnPoint = null;
+            Point turnTo = null;
 
-            // if going to the opposite direction or turning around we don't want to see for the 5 blocks.
-            if (direction == 0 && vectorChangeMag == 3) {
-                changeDirectionWithin = 0; // meaning turn around is instant
-            } else if (direction == 1 && vectorChangeMag == 2) {
-                changeDirectionWithin = 0;
-            } else if (direction == 2 && vectorChangeMag == 1) {
-                changeDirectionWithin = 0;
-            } else if (direction == 3 && vectorChangeMag == 0) {
-                changeDirectionWithin = 0;
-            }
-
-            if (vectorChangeMag == direction) return; // if in same direction then we don't want to do any operation
-
-            /* What we can do is we can like round of the block he is in. So that the movement is accurate, when he wants to move.
-             * We can try that. we keep track of last coordinate in the gird and calculate from there.  */
-
-            ArrayList<Point> turnPointInRange = new ArrayList<>();
-            ArrayList<Point> changeDirectionInRange = new ArrayList<>();
-
-            changeDirectionWithin = 5; // reset that
-            VectorChangeRangeParams vectorChangeParams = vectorChangeRange(vectorChangeMag);
-            if (vectorChangeParams.inRange()) {
-                Point currentPoint = vectorChangeParams.currentPoint();
-
-                turnPointInRange.add(currentPoint);
-                changeDirectionInRange.add(new Point(vectorChangeParams.getCoordinate()[0], vectorChangeParams.getCoordinate()[1]));
-            }
-
-            /* Here we are getting the list of points from where we can turn, why we are doing that can be addressed in the
-             * line, 108,
-             * given that the problem is addressed.
-             * we might want to, calculate the cost, if the cost is less meaning if it takes less time to turn in a point
-             * even if its listed far in the array we need to turn. we might want to check like how many blocks we might need to reach
-             * the particular point  */
-            ArrayList<Integer> costArray = new ArrayList<>();
-
-            for (Point turnPoint : turnPointInRange) {
-                // current position of the character, we need to find the nearest edge wrt to the current position.
-                costArray.add(blockCost(turnPoint, vectorChangeMag));
-            }
-            if (costArray.isEmpty()) return;
-            int minValue = Collections.min((costArray));
-            int indexOfMin = costArray.indexOf(minValue);
-            changeTo = turnPointInRange.get(indexOfMin); // both the index is same since the size of List in same in both case
-            changeIn = changeDirectionInRange.get((indexOfMin));
-            requestedVector = vectorChangeMag;
-            // here lets find the index with the minimum cost and do, we won't want to manually write the code to do that since it will increase the line of code.
-
-        }
-
-        private int blockCost(Point finalPoint, int requestedMagnitude) {
-            /* The whole point is here to find the distance from initial point that the character is currently in to the turn point. */
-            int currentCharacterPositionX = initX;
-            int currentCharacterPositionY = initY;
-
-            int count = 0;
-
-            while (true) {
-
-                Point checkPoint = new Point(currentCharacterPositionX + vectorX[requestedMagnitude], currentCharacterPositionY + vectorY[requestedMagnitude]);
-                if (finalPoint.equals(checkPoint)) {
-                    break;
+            if (moveable.contains(currentCharacterPoint)) {
+                while (true) {
+                    if (count > changeDirectionWithin) {
+                        break;
+                    }
+                    Point testPoint = new Point(reqX, reqY);
+                    testPoint.x += vectorX[vectorChangeMag];
+                    testPoint.y += vectorY[vectorChangeMag];
+                    if (moveable.contains(testPoint)) {
+                        turnPoint = new Point(reqX, reqY);
+                        turnTo = testPoint; // this is the point where we want to turn to
+                        break;
+                    }
+                    reqX += vectorX[direction];
+                    reqY += vectorY[direction];
+                    count++;
                 }
-
-                // in the same way, maybe I am not thinking a bit broad to clean this up maybe we could do that up but its tricky
-                // feels like im increasing the run time complexity but the array list itself is small since the points that lies in the gird are already sorted above.
-                currentCharacterPositionX += vectorX[direction];
-                currentCharacterPositionY += vectorY[direction];
-                count++;
             }
-            return count;
+            if (!(turnPoint == null)) {
+                changeTo = turnTo;
+                changeIn = turnPoint;
+                requestedVector = vectorChangeMag;
+            }
         }
-
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); // calling the constructor from the super class, for cleaning content in the canvas
@@ -563,23 +522,12 @@ class Frame {
 
         @Override
         public void keyPressed(KeyEvent e) {
-            /* key code, like in every language,
-             * we need to have key code assigned with particular key
-             * w = 87, s = 83, a = 65, d = 68,
-             *int[] vectorX = new int[] {0, 1, -1, 0, 0};
-              int[] vectorY = new int[] {1, 0, 0, -1, 0};
-              */
+
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            /* I think we need to add the collision logic here because I don't think we could use those array's value
-             * in other class it's fine though should be a small project like: https://github.com/Aavash232311/SNAKE-GAME-JS/blob/main/index.js
-            /*
-                    int[] vectorX = new int[] {0, 1, -1, 0, 0};
-                    int[] vectorY = new int[] {1, 0, 0, -1, 0};
 
-             */
             repaint();
         }
     }
