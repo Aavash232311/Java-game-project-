@@ -309,10 +309,10 @@ class Frame {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-//            for (Point point: markerPoint) {
-//                g.setColor(Color.RED);
-//                g.drawRect(point.x, point.y, stdSize, stdSize);
-//            }
+            for (Point point: markerPoint) {
+                g.setColor(Color.RED);
+                g.drawRect(point.x, point.y, stdSize, stdSize);
+            }
 //            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
@@ -425,13 +425,13 @@ class Frame {
             return new Point(x, y);
         }
 
-//        ArrayList<Point> markerPoint = new ArrayList<>();
+        ArrayList<Point> markerPoint = new ArrayList<>();
         private void vectorChange(int vectorChangeMag) {
             /* In our earlier code we did things in the "hard" way. Now what can we do is first,
             * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
             Point currentCharacterPoint = new Point(initX, initY);
-            Point calibratedBack = backRange(3, currentCharacterPoint.x, currentCharacterPoint.y);
-            int reqX = calibratedBack.x, reqY = calibratedBack.y, count = 0;
+
+            int reqX = currentCharacterPoint.x, reqY = currentCharacterPoint.y, count = 0;
 
             Point turnPoint = null;
             Point turnTo = null;
@@ -442,7 +442,7 @@ class Frame {
                         break;
                     }
                     Point testPoint = new Point(reqX, reqY);
-//                    markerPoint.add(new Point(reqX, reqY));
+                    markerPoint.add(new Point(reqX, reqY));
                     testPoint.x += vectorX[vectorChangeMag];
                     testPoint.y += vectorY[vectorChangeMag];
                     if (moveable.contains(testPoint)) {
