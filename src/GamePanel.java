@@ -59,23 +59,9 @@ class Frame {
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
         public Point currentCoordinate = new Point();
         public int location;
-        public int id;
 
         public EnemyCoordinateTrack(Point loadedDefaultPoint) {
             this.currentCoordinate = loadedDefaultPoint;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public int getId() {
-            return this.id;
-        }
-
-        public void setEnemyCoordinate(Point p) {
-            this.currentCoordinate.x = p.x;
-            this.currentCoordinate.y = p.y;
         }
 
         public Point getEnemyCoordinate() { // gets the current enemy position
@@ -323,13 +309,6 @@ class Frame {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-            if (testMarker.size() > 0) {
-                for (Point point: testMarker) {
-                    g.setColor(Color.PINK);
-                    g.drawRect(point.x, point.y, stdSize, stdSize);
-                }
-            }
 //            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
@@ -467,8 +446,6 @@ class Frame {
             changeP.setCoordinateProjected(projectedX, projectedY);
             return changeP;
         }
-
-        ArrayList<Point> testMarker = new ArrayList<>();
 
         private void vectorChange(int vectorChangeMag) {
             /* In our earlier code we did things in the "hard" way. Now what can we do is first,
