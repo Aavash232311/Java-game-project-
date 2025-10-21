@@ -408,45 +408,6 @@ class Frame {
             | 2         | 1           | 0           | Left          |
             | 3         | 0           | 1           | Down          |
          */
-
-        /* another problem is okay the way we draw the grid, it's by connecting the blocks right,
-         * and if we loop and connect when changing the direction the character might move on the far end
-         * of the turn because the coordinate of the later coordinate might come first. We need to figure out a
-         * way to check, if we found the point did we found the nearest point?
-         *
-         * if we did it with new method it increases the run time complexity and stuff because we would need to loop again and again */
-
-        private VectorChangeRangeParams vectorChangeRange(int vectorChangeMag) { // we might want to reuse this because we need to use this logic in our enemy code, which might run every frame to check and randomly generate a change.
-            // this vector change mag is generated randomly with natural length of array - 1, because the last index of array is simply to stop
-            int count = 0;
-            int projectedX = initX;
-            int projectedY = initY;
-
-            int reqX;
-            int reqY;
-            VectorChangeRangeParams changeP = new VectorChangeRangeParams();
-
-            while ((count) <= changeDirectionWithin) {
-                reqX = projectedX + vectorX[vectorChangeMag]; // proj x (current coordinate) and other part is what if we change direction.
-                reqY = projectedY + vectorY[vectorChangeMag];
-                Point currentPoint = new Point(reqX, reqY);
-                if (moveable.contains(currentPoint)) {
-                    /* Sometimes we might be able to turn in different points within some blocks apart that are close.
-                     * In that case we store and find the minimum so we can take the nearest exit. */
-                    changeP.setRange(true);
-                    changeP.setCurrentPoint(currentPoint);
-                    break; // no need to go further
-                }
-
-                // here we move forward
-                projectedX += vectorX[direction];
-                projectedY += vectorY[direction];
-                count++;
-            }
-            changeP.setCoordinateProjected(projectedX, projectedY);
-            return changeP;
-        }
-
         private void vectorChange(int vectorChangeMag) {
             /* In our earlier code we did things in the "hard" way. Now what can we do is first,
             * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
