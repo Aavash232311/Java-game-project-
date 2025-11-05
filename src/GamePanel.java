@@ -249,12 +249,12 @@ class Frame {
             // this block for flipping back and forth between the textures so that it looks like the character is making movements.
             try {
                 Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
-                new Timer(800, e -> { // this thing runs every 2000ms i.e. 2 seconds
+                if (timeCounter % 1 == 0) {
                     characterTextureIndex++;
                     if (characterTextureIndex > characterTextureSeq.size() - 1) {
                         characterTextureIndex = 0;
                     }
-                }).start();
+                }
 
                 /*
                  * thera = arc tan2(dy,dx), the result is in rad, so we need to explicitly convert to degree,
@@ -309,10 +309,11 @@ class Frame {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            for (Point point: markerPoint) {
-                g.setColor(Color.RED);
-                g.drawRect(point.x, point.y, stdSize, stdSize);
-            }
+//            for (Point point: markerPoint) {
+//                g.setColor(Color.RED);
+//                g.drawRect(point.x, point.y, stdSize, stdSize);
+//            }
+
 //            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
@@ -320,7 +321,8 @@ class Frame {
             initX += vectorX[direction];
             initY += vectorY[direction];
             if (frameCount % 2 == 0) {
-                enemyMovementLogic(g); // for better readability
+                // game is little slow over time
+               enemyMovementLogic(g); // for better readability
             }
             frameCount++;
         }
