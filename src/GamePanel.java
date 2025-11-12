@@ -23,38 +23,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 // the points here does not work like the xy plane in maths its like a single quadrant graph, with (0,0) at the top
 class Frame {
-    /* we need to return this object because when we find that we could change range within a certain point then we need to reuse that code in our
-    * enemy logic. Following that "Don't repeat yourself" principle we can recycle that. I need to document this code inorder for me to understand if I went on
-    * vacation for 1 month and comeback again. */
-    static class VectorChangeRangeParams {
-        public boolean vectorChange = false; // that's that default state
-        public Point currentPoint;
-        final int[] coordinate = new int[2];
-
-        public void setCoordinateProjected(int x, int y) {
-            coordinate[0] = x;
-            coordinate[1] = y;
-        }
-
-        public int[] getCoordinate() {
-            return this.coordinate;
-        }
-
-        // not loading the constructor because we need to initialize this object in our method
-        public void setCurrentPoint(Point point) { // I don't know but that's how getter and setter should work here
-            this.currentPoint = point;
-        }
-        public void setRange(boolean r) {
-            this.vectorChange = r;
-        }
-
-        public boolean inRange() {
-            return this.vectorChange;
-        }
-        public Point currentPoint() {
-            return this.currentPoint;
-        }
-    }
 
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
         public Point currentCoordinate = new Point();
