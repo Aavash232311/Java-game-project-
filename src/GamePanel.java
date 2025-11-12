@@ -99,6 +99,8 @@ class Frame {
         final int enemyPathY = 120;
         int timeCounter = 0;
         Map<Integer, Integer> dictionaryOfOppositeTurn = new HashMap<>();
+        public int eaten_food = -1;
+        public int points = 0;
         /*
             Okay problem here is we want to turn back it loops till 5 blocks and messes things up we will fix that asap so that we wont
             have any problems.
@@ -131,7 +133,6 @@ class Frame {
             cherryTextureSeq.add(new Cheery(cherryPath, new Point(430, 120)));
             cherryTextureSeq.add(new Cheery(cherryPath, new Point(470, 160)));
             cherryTextureSeq.add(new Cheery(cherryPath, new Point(120, 120)));
-            cherryTextureSeq.add(new Cheery(cherryPath, new Point(30, 80)));
 
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
             for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
@@ -266,7 +267,9 @@ class Frame {
             /* Here what we can do is flip the character image based on the direction we are going, this
              * is significant only in the main character, since it's just a circle,
              * we can use the arc tangent formula */
-
+            g.setFont(new Font("Arial", Font.BOLD, 12));
+            g.setColor(Color.ORANGE);
+            g.drawString("Point: " + points, 50, 30);
             // this block for flipping back and forth between the textures so that it looks like the character is making movements.
             try {
                 Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
@@ -277,11 +280,25 @@ class Frame {
                     }
                 }
 
+                if (eaten_food != -1) {
+                    // since it showed me an error when trying to remove while iterating
+                    cherryTextureSeq.remove(eaten_food);
+                    points++; // gets the point
+                    eaten_food = -1;
+                }
+
+                int arrayListIndex = 0;
                 for (Cheery currentCherry: cherryTextureSeq) {
                     Image cherryImage = ImageIO.read(new File(currentCherry._path));
                     Point cherryCoordinate = currentCherry._coordinate;
                     g.drawImage(cherryImage,cherryCoordinate.x, cherryCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
+
+                    if (cherryCoordinate.equals(new Point(initX, initY))) {
+                        eaten_food = arrayListIndex;
+                    }
+                    arrayListIndex++;
                 }
+
 
                 /*
                  * thera = arc tan2(dy,dx), the result is in rad, so we need to explicitly convert to degree,
