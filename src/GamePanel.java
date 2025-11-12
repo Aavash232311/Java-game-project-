@@ -76,11 +76,23 @@ class Frame {
             return this.location;
         }
     }
+
+    /* This the thing that enemy is going to eat, due to me being busy
+    * I can't program the full game but will do the basic blueprint. */
+    static class Cheery {
+        public String _path;
+        public Point _coordinate;
+        public Cheery(String path, Point coordinate) {
+            _path = path;
+            _coordinate = coordinate;
+        }
+    }
     // static class is a nested class in java, compared to what I was used to in c#
     static class UnderFrame extends JPanel implements KeyListener, ActionListener { // interface
         public final ArrayList<String> characterTextureSeq = new ArrayList<>();
         public final ArrayList<String> opponentTextureSeq = new ArrayList<>();
         public final ArrayList<EnemyCoordinateTrack> enemyCoordinateTrack = new ArrayList<>();
+        public final ArrayList<Cheery> cherryTextureSeq = new ArrayList<>();
         public final Random random = new Random();
         public int characterTextureIndex = 0;
         final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
@@ -111,6 +123,15 @@ class Frame {
             opponentTextureSeq.add("./textures/o2.png");
             opponentTextureSeq.add("./textures/o3.png");
             opponentTextureSeq.add("./textures/o4.png"); // here we have 4 opponents, later we define how we are going to create logic for them.
+
+            String cherryPath = "./textures/cherry.png";
+            // loading of the food that the character is going to eat 🍒
+            cherryTextureSeq.add(new Cheery(cherryPath, new Point(530, 80)));
+            cherryTextureSeq.add(new Cheery(cherryPath, new Point(320, 160)));
+            cherryTextureSeq.add(new Cheery(cherryPath, new Point(430, 120)));
+            cherryTextureSeq.add(new Cheery(cherryPath, new Point(470, 160)));
+            cherryTextureSeq.add(new Cheery(cherryPath, new Point(120, 120)));
+            cherryTextureSeq.add(new Cheery(cherryPath, new Point(30, 80)));
 
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
             for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
@@ -254,6 +275,12 @@ class Frame {
                     if (characterTextureIndex > characterTextureSeq.size() - 1) {
                         characterTextureIndex = 0;
                     }
+                }
+
+                for (Cheery currentCherry: cherryTextureSeq) {
+                    Image cherryImage = ImageIO.read(new File(currentCherry._path));
+                    Point cherryCoordinate = currentCherry._coordinate;
+                    g.drawImage(cherryImage,cherryCoordinate.x, cherryCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
                 }
 
                 /*
