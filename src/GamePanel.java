@@ -46,21 +46,24 @@ class Frame {
     }
 
     /* This the thing that enemy is going to eat, due to me being busy
-    * I can't program the full game but will do the basic blueprint. */
+     * I can't program the full game but will do the basic blueprint. */
     static class Cheery {
         public String _path;
         public Point _coordinate;
+
         public Cheery(String path, Point coordinate) {
             _path = path;
             _coordinate = coordinate;
         }
     }
+
     // static class is a nested class in java, compared to what I was used to in c#
     static class UnderFrame extends JPanel implements KeyListener, ActionListener { // interface
         public final ArrayList<String> characterTextureSeq = new ArrayList<>();
         public final ArrayList<String> opponentTextureSeq = new ArrayList<>();
         public final ArrayList<EnemyCoordinateTrack> enemyCoordinateTrack = new ArrayList<>();
         public final ArrayList<Cheery> cherryTextureSeq = new ArrayList<>();
+        public final ArrayList<Cheery> lifeTextureSeq = new ArrayList<>();
         public final Random random = new Random();
         public int characterTextureIndex = 0;
         final int enemyPathX = 430; // these are the initial path, i.e. the home in which the enemy will span from, we can keep track of other coordinates when later defining the array
@@ -69,6 +72,7 @@ class Frame {
         Map<Integer, Integer> dictionaryOfOppositeTurn = new HashMap<>();
         public int eaten_food = -1;
         public int points = 0;
+        public int life = 3;
         /*
             Okay problem here is we want to turn back it loops till 5 blocks and messes things up we will fix that asap so that we wont
             have any problems.
@@ -102,8 +106,16 @@ class Frame {
             cherryTextureSeq.add(new Cheery(cherryPath, new Point(470, 160)));
             cherryTextureSeq.add(new Cheery(cherryPath, new Point(120, 120)));
 
+            // adding life icons ❤️, you can touch enemy here as long your life does not end
+            String lifeTexturePath = "./textures/heart.png";
+            int initialX = 530;
+            for (int i = 0; i < life; i++) {
+                lifeTextureSeq.add(new Cheery(lifeTexturePath, new Point(initialX, 10)));
+                initialX += 15;
+            }
+
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
-            for (int i =0; i <= opponentTextureSeq.size() - 1; i++) {
+            for (int i = 0; i <= opponentTextureSeq.size() - 1; i++) {
                 EnemyCoordinateTrack positionTrack = new EnemyCoordinateTrack(new Point(enemyPathX, enemyPathY));
                 positionTrack.setDirection(4); // by default the enemy moves to the right
                 enemyCoordinateTrack.add(positionTrack); // this is the default enemy position based on the texture size i.e how many enemy is there we span each of them from a fixed coordinate.
@@ -120,17 +132,17 @@ class Frame {
         }
 
         /* Okay for rendering our enemy I have faced problem, if I add the timer in the middle then it works find for the first time
-        * and then does not work in 5 sec interval for the second time. I wanted it to work like setInterval(() => {}, time) in javascript,
-        * for that let's just simple unitary method and note down the interval, okay so the initial timer runs every 0.1 sec = 100ms
-        * for 1 sec it needs to run 10 times, for 5 sec it needs to run 50times.
-        *  */
+         * and then does not work in 5 sec interval for the second time. I wanted it to work like setInterval(() => {}, time) in javascript,
+         * for that let's just simple unitary method and note down the interval, okay so the initial timer runs every 0.1 sec = 100ms
+         * for 1 sec it needs to run 10 times, for 5 sec it needs to run 50times.
+         *  */
 
         public final int stdSize = 10;
         public int[] vectorX = new int[]{0, stdSize, -stdSize, 0, 0};
         public int[] vectorY = new int[]{stdSize, 0, 0, -stdSize, 0};
 
-        int[] vectorXBin = new int[] {0, 1, -1, 0, 0};
-        int[] vectorYBin = new int[] {1, 0, 0, -1, 0};
+        int[] vectorXBin = new int[]{0, 1, -1, 0, 0};
+        int[] vectorYBin = new int[]{1, 0, 0, -1, 0};
         int initX = 80;
         int initY = 50;
         int direction = 1;
@@ -145,6 +157,7 @@ class Frame {
         int requestedVector = -1;
 
         int frameCount = 1;
+
         /*
          * This a concept from the snake game I made, earlier in my projects
          * if we have vectorX[0] and vectorY[0] then we have no increment on x but on Y */
@@ -154,7 +167,7 @@ class Frame {
         }
 
         private double degreeToRad(double theta) {
-            return theta * (180/Math.PI);
+            return theta * (180 / Math.PI);
         }
 
         private double arcTangent(int y, int x) { // this will return in degree, since I will make it return
@@ -222,7 +235,8 @@ class Frame {
                     initY = 120;
                 } else if (secondEscapePoint) {
                     direction = 1;
-                    initX = 30; initY = 80;
+                    initX = 30;
+                    initY = 80;
                 } else {
                     direction = 4;
                 }
@@ -256,15 +270,21 @@ class Frame {
                 }
 
                 int arrayListIndex = 0;
-                for (Cheery currentCherry: cherryTextureSeq) {
+                for (Cheery currentCherry : cherryTextureSeq) {
                     Image cherryImage = ImageIO.read(new File(currentCherry._path));
                     Point cherryCoordinate = currentCherry._coordinate;
-                    g.drawImage(cherryImage,cherryCoordinate.x, cherryCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
+                    g.drawImage(cherryImage, cherryCoordinate.x, cherryCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
 
                     if (cherryCoordinate.equals(new Point(initX, initY))) {
                         eaten_food = arrayListIndex;
                     }
                     arrayListIndex++;
+                }
+                // load heart textures
+                for (Cheery currentLifeIcon : lifeTextureSeq) {
+                    Image heatImage = ImageIO.read(new File(currentLifeIcon._path));
+                    Point heartCoordinate = currentLifeIcon._coordinate;
+                    g.drawImage(heatImage, heartCoordinate.x, heartCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
                 }
 
 
@@ -282,10 +302,10 @@ class Frame {
                  * Problem: when switching between the textures there is a glitch weird, okay, so I tried to use only one texture, so I am sure
                  * that it's not the problem with the coordinates, also to be noted that the transformation is not perfectly transformed.
                  * The problem is the way I downloaded the textures it's not symmetric alr neither is the switching texture
-                */
+                 */
 
                 double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
-                g2d.rotate(angle, initX + (stdSize + stdTrim)/2.0, initY + (stdSize + stdTrim)/2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
+                g2d.rotate(angle, initX + (stdSize + stdTrim) / 2.0, initY + (stdSize + stdTrim) / 2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
                 // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
                 g.drawImage(main_character, initX, initY, stdSize + stdTrim, stdSize + stdTrim, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
                 g2d.setTransform(oldTransform); // when we transform using the arc tangent 2 function it glitches so we are re-storing the old transform state so it does not affect our opponent character
@@ -293,22 +313,22 @@ class Frame {
                 g.setColor(Color.RED);
 
                 int enemyRenderLoopCount = 0;
-                for (String enemyPath: opponentTextureSeq) { // from this loop we render all the enemy
+                for (String enemyPath : opponentTextureSeq) { // from this loop we render all the enemy
                     Image imageEnemy = ImageIO.read(new File(enemyPath));
                     // we need to make this move
                     EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyRenderLoopCount);
                     Point currentEnemyPoint = currentEnemy.getEnemyCoordinate();
 
-                    g.drawImage(imageEnemy,currentEnemyPoint.x, currentEnemyPoint.y, stdSize + stdTrim, stdSize + stdTrim, this); // this is the image of our opponent, in the game
+                    g.drawImage(imageEnemy, currentEnemyPoint.x, currentEnemyPoint.y, stdSize + stdTrim, stdSize + stdTrim, this); // this is the image of our opponent, in the game
                     enemyRenderLoopCount++;
                 } // here we have initialized the default state of our character
                 // todo: keep track of coordinates of all the characters alr, and then design a movement logic
                 /* It's kind of tricky the way we want to add the movement logic here,
-                *  First, when the character moves after few seconds other should move i.e. there should be spacing between the characters.
-                * Then we added that logic when we want to turn the character that logic should be there every second and we randomly pick the value where the character wants to go
-                * THe speed of the opponent should be little slower so that we can catch them and eliminate them.
-                *
-                * Let make one character move and after 4 sec interval another character will move.  */
+                 *  First, when the character moves after few seconds other should move i.e. there should be spacing between the characters.
+                 * Then we added that logic when we want to turn the character that logic should be there every second and we randomly pick the value where the character wants to go
+                 * THe speed of the opponent should be little slower so that we can catch them and eliminate them.
+                 *
+                 * Let make one character move and after 4 sec interval another character will move.  */
 
                 // okay everything apart we want the character to move in certain second interval
                 // so what we want is we want our enemy to move one after the other
@@ -329,14 +349,14 @@ class Frame {
             initY += vectorY[direction];
             if (frameCount % 2 == 0) {
                 // game is little slow over time
-               enemyMovementLogic(g); // for better readability
+                enemyMovementLogic(g); // for better readability
             }
             frameCount++;
         }
 
         private void enemyMovementLogic(Graphics g) {
 
-            for (EnemyCoordinateTrack currentEnemy: enemyCoordinateTrack) {
+            for (EnemyCoordinateTrack currentEnemy : enemyCoordinateTrack) {
                 if (currentEnemy.getDirection() != 4) { // why 4 because it increments by 0
 
                     // this is for updating the coordinate
@@ -361,9 +381,9 @@ class Frame {
                         // I forgot and some point, when we define some instance of a class, memory is allocated for that, and if we update that from here it gets updated
                         currentPoint.x += vectorX[currentEnemy.getDirection()];
                         currentPoint.y += vectorY[currentEnemy.getDirection()];
-                    }else {
+                    } else {
                         /* If the next step that enemy might move is "Inf", let's use that term to denote points outside "moveable" grid.
-                        * Then we simply turn back  */
+                         * Then we simply turn back  */
                         int turnDirection = dictionaryOfOppositeTurn.get(currentEnemy.getDirection());
                         currentEnemy.setDirection(turnDirection); // get back then
                     }
@@ -378,7 +398,7 @@ class Frame {
             // since we won't let the enemy turn where it's not allowed to turn.
 
             int possibleTurnOptionsRange = vectorX.length - 2; // the last one index means simply stop
-            int[] movementChoiceArray = new int[] {-1, -1, -1, -1};
+            int[] movementChoiceArray = new int[]{-1, -1, -1, -1};
             // in the above array if the enemy cannot move then its initial state will be -1
 
             // straight forward this loop checks in all the possible direction if our character can go there or not
@@ -392,12 +412,12 @@ class Frame {
                 }
             }
             /* Here the "movementChoiceArray" is the array which results "direction integer" in the corresponding index in which our character can move.
-            * Now with the few set of restrictions we need to make it go on random path.  */
+             * Now with the few set of restrictions we need to make it go on random path.  */
             int changeDirection = currentEnemyDirection;
             // For now let's see the options in which our "enemy" character can go except the current direction.
             int oppositeToTheCurrentDirection = dictionaryOfOppositeTurn.get(currentEnemyDirection);
             // for finding where else can our character turn expect going the opposite way and going forward
-            int[] choicesForEnemyExcept = Arrays.stream(movementChoiceArray).filter( x -> x != currentEnemyDirection && x != oppositeToTheCurrentDirection).toArray();
+            int[] choicesForEnemyExcept = Arrays.stream(movementChoiceArray).filter(x -> x != currentEnemyDirection && x != oppositeToTheCurrentDirection).toArray();
             // to check for that where else we not to sort out where else not i.e. "-1"
             int[] choicesLeft = Arrays.stream(choicesForEnemyExcept).filter(x -> x != -1).toArray();
             if (choicesLeft.length > 0) {
@@ -435,9 +455,10 @@ class Frame {
         }
 
         ArrayList<Point> markerPoint = new ArrayList<>();
+
         private void vectorChange(int vectorChangeMag) {
             /* In our earlier code we did things in the "hard" way. Now what can we do is first,
-            * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
+             * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
             Point currentCharacterPoint = new Point(initX, initY);
 
             int reqX = currentCharacterPoint.x, reqY = currentCharacterPoint.y, count = 0;
@@ -470,6 +491,7 @@ class Frame {
                 requestedVector = vectorChangeMag;
             }
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); // calling the constructor from the super class, for cleaning content in the canvas
