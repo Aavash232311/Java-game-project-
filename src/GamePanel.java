@@ -321,12 +321,7 @@ class Frame {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-//            for (Point point: markerPoint) {
-//                g.setColor(Color.RED);
-//                g.drawRect(point.x, point.y, stdSize, stdSize);
-//            }
 
-//            g.drawRect(initX, initY, stdSize, stdSize); // this is the box of the character.
             if (moveable.contains(new Point(initX, initY))) {
                 lastGrid = new Point(initX, initY);
             }
