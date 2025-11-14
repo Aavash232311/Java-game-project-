@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
 class Frame {
 
     static class EnemyCoordinateTrack { // simple getter setter like class for each of our enemy character. I'm used to c# so I don't know if we have better way of doing these things
-        public Point currentCoordinate = new Point();
+        public Point currentCoordinate;
         public int location;
 
         public EnemyCoordinateTrack(Point loadedDefaultPoint) {
@@ -242,6 +242,7 @@ class Frame {
                     direction = 4;
                 }
             }
+
             /* Here we want to create a point from which we can send the character to the other end like a portal,
              * for that we need to predefine such grid and teleport the characters. If the character is going towards that point
              * that we define in a direction variable we can send that charter to the other end. Normally we stop at the edge but in the
@@ -355,6 +356,8 @@ class Frame {
             frameCount++;
         }
 
+        /* The problem when detecting a collision with ghost is, when the ghost itself approaches the character then the collision is detected,
+        * else it's not. let's fix that we can for every character movement to loop and check if we collided with the ghost */
         private void enemyMovementLogic(Graphics g) {
 
             for (EnemyCoordinateTrack currentEnemy : enemyCoordinateTrack) {
