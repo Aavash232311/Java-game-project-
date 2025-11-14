@@ -121,6 +121,8 @@ class Frame {
                 enemyCoordinateTrack.add(positionTrack); // this is the default enemy position based on the texture size i.e how many enemy is there we span each of them from a fixed coordinate.
             }
 
+
+
             setFocusable(true);
             requestFocusInWindow();
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
@@ -193,7 +195,6 @@ class Frame {
          * array of moveable. */
 
         int enemyMoveCount = 0; // this counts how many enemy have moved in like 5 second interval
-        float enemySpeed = 0.5f;
 
 
         private void movementLogic(Grid grid, Graphics g) {
