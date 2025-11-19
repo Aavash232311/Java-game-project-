@@ -498,9 +498,9 @@ class Frame {
             super.paintComponent(g); // calling the constructor from the super class, for cleaning content in the canvas
 
             Graphics2D g2 = (Graphics2D) g; // graphics 2d have more features like transformation and more. So we are converting it.
-            g2.setStroke(new BasicStroke(5)); // thickness of line
-            g2.setColor(Color.BLUE);
-            setBackground(Color.black);
+            g2.setStroke(new BasicStroke(9)); // thickness of line
+            g2.setColor(Color.decode("#7856cb"));
+            setBackground(Color.decode("#293b59"));
 
             Grid maizeGrid = new Grid(g2);
             maizeGrid.buildGrid(); // after we build the grid then the coordinates get loaded here.
