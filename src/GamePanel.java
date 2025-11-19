@@ -122,7 +122,6 @@ class Frame {
             }
 
 
-
             setFocusable(true);
             requestFocusInWindow();
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
@@ -159,6 +158,10 @@ class Frame {
         int requestedVector = -1;
 
         int frameCount = 1;
+
+        int godCount = 0; // for making our character untouchable for few seconds
+        boolean touched = false;
+        final int invisibleFor = 5; // invisible for 5 seconds
 
         /*
          * This a concept from the snake game I made, earlier in my projects
@@ -286,7 +289,14 @@ class Frame {
                 for (Cheery currentLifeIcon : lifeTextureSeq) {
                     Image heatImage = ImageIO.read(new File(currentLifeIcon._path));
                     Point heartCoordinate = currentLifeIcon._coordinate;
-                    g.drawImage(heatImage, heartCoordinate.x, heartCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
+                    // let's have that blink effect when, we touch character
+                    if (touched) {
+                        if (timeCounter % 5 == 0) {
+                            g.drawImage(heatImage, heartCoordinate.x, heartCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
+                        }
+                    } else {
+                        g.drawImage(heatImage, heartCoordinate.x, heartCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
+                    }
                 }
 
 
@@ -332,8 +342,6 @@ class Frame {
                  *
                  * Let make one character move and after 4 sec interval another character will move.  */
 
-                // okay everything apart we want the character to move in certain second interval
-                // so what we want is we want our enemy to move one after the other
                 if (timeCounter % 50 == 0 && enemyMoveCount <= opponentTextureSeq.size() - 1) {
                     // okay so timeCounter gets incremented every 100ms at 1000ms its 1 okay if we divide by 5 when it becomes after like 5000ms then we get the reminder 0
                     EnemyCoordinateTrack currentEnemy = enemyCoordinateTrack.get(enemyMoveCount); // since that block runs in some interval for some amount of time we can only change the boolean here and then in the main frame where the game runs in full frame we can make the character move
@@ -357,7 +365,7 @@ class Frame {
         }
 
         /* The problem when detecting a collision with ghost is, when the ghost itself approaches the character then the collision is detected,
-        * else it's not. let's fix that we can for every character movement to loop and check if we collided with the ghost */
+         * else it's not. let's fix that we can for every character movement to loop and check if we collided with the ghost */
         private void enemyMovementLogic(Graphics g) {
 
             for (EnemyCoordinateTrack currentEnemy : enemyCoordinateTrack) {
@@ -385,6 +393,7 @@ class Frame {
                         // I forgot and some point, when we define some instance of a class, memory is allocated for that, and if we update that from here it gets updated
                         currentPoint.x += vectorX[currentEnemy.getDirection()];
                         currentPoint.y += vectorY[currentEnemy.getDirection()];
+
                     } else {
                         /* If the next step that enemy might move is "Inf", let's use that term to denote points outside "moveable" grid.
                          * Then we simply turn back  */
@@ -398,7 +407,7 @@ class Frame {
         private void enemyMovementChoices(EnemyCoordinateTrack currentEnemy, Graphics g) {
             Point currentEnemyPosition = currentEnemy.getEnemyCoordinate();
             int currentEnemyDirection = currentEnemy.getDirection();
-            // no need to external loop, it will be just increate the complexity of our code.
+            // no need to external loop, it will be just increase the complexity of our code.
             // since we won't let the enemy turn where it's not allowed to turn.
 
             int possibleTurnOptionsRange = vectorX.length - 2; // the last one index means simply stop
@@ -445,18 +454,6 @@ class Frame {
             | 2         | 1           | 0           | Left          |
             | 3         | 0           | 1           | Down          |
          */
-
-
-        private Point backRange(int backLoop, int x, int y) { // sometimes we click when we are at the middle and it seems laggy so we want make the initial point little back ward
-            int count = backLoop;
-
-            while (count >= 0) {
-                x -= vectorX[direction];
-                y -= vectorY[direction];
-                count--;
-            }
-            return new Point(x, y);
-        }
 
         ArrayList<Point> markerPoint = new ArrayList<>();
 
