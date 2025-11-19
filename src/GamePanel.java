@@ -16,11 +16,14 @@ import java.util.concurrent.ThreadLocalRandom;
 /* According to my experience making these small projects in different languages,
  * like js, python in order to draw and render something in frame we need canvas. Of course there
  * is a limitation here like let's say if we want to detect weather a complex polygon has overlapped I don't
- * think we can do it in easy way.
+ * think we can do it in easy way without like API.
  *
  * Trying my best to make it readable.
  */
 
+// todo: Detect collision between character and ghost, it's not a complex polygon overlap
+// todo: since both are in moment, it's not in sync, turns out it's little difficult to detect that,
+// todo: but I will figure it out
 // the points here does not work like the xy plane in maths its like a single quadrant graph, with (0,0) at the top
 class Frame {
 
