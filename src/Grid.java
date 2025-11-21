@@ -4,26 +4,28 @@ import java.util.ArrayList;
 /* All the messy code we want to store here regarding the grid operation */
 
 /*
-*   Let's find a way to draw a grid in effective way, in that grid our character can travel.
-* Before moving any directions our character can check if there is coordinate associated with it in
-* the array list and move accordingly.
-*
-* And then we can draw our maize in different way.
-*
-* First create a method, which can draw those sizes effect.
-*  */
+ *   Let's find a way to draw a grid in effective way, in that grid our character can travel.
+ * Before moving any directions our character can check if there is coordinate associated with it in
+ * the array list and move accordingly.
+ *
+ * And then we can draw our maize in different way.
+ *
+ * First create a method, which can draw those sizes effect.
+ *  */
 public class Grid {
     private final Graphics g2;
+
     Grid(Graphics g2) { // parameterized constructor
         this.g2 = g2;
     }
 
     private final ArrayList<Point> moveable = new ArrayList<>(); // using point because it will be easy to sort later on
+
     // creating this method to automate the hard code needed to draw the grid in which the pac man moves.
     private int[] drawGrid(int x, int y, int moveIndex, int repeat) {
         final int size = 10;
-        int[] vectorX = new int[] {0, size, -size, 0};
-        int[] vectorY = new int[] {size, 0, 0, -size};
+        int[] vectorX = new int[]{0, size, -size, 0};
+        int[] vectorY = new int[]{size, 0, 0, -size};
         int drawX = x;
         int drawY = y;
 
@@ -35,8 +37,9 @@ public class Grid {
             drawX += vectorX[moveIndex];
             drawY += vectorY[moveIndex];
         }
-        return new int[] {drawX, drawY};
+        return new int[]{drawX, drawY};
     }
+
     /* Just for the reference so that I don't have to look back and forth again and again */
     public void buildGrid() {
 

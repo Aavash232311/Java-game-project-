@@ -162,9 +162,7 @@ class Frame {
 
         int frameCount = 1;
 
-        int godCount = 0; // for making our character untouchable for few seconds
         boolean touched = false;
-        final int invisibleFor = 5; // invisible for 5 seconds
 
         /*
          * This a concept from the snake game I made, earlier in my projects
@@ -262,13 +260,6 @@ class Frame {
             g.drawString("Point: " + points, 50, 30);
             // this block for flipping back and forth between the textures so that it looks like the character is making movements.
             try {
-                Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
-                if (timeCounter % 1 == 0) {
-                    characterTextureIndex++;
-                    if (characterTextureIndex > characterTextureSeq.size() - 1) {
-                        characterTextureIndex = 0;
-                    }
-                }
 
                 if (eaten_food != -1) {
                     // since it showed me an error when trying to remove while iterating
@@ -318,13 +309,8 @@ class Frame {
                  * that it's not the problem with the coordinates, also to be noted that the transformation is not perfectly transformed.
                  * The problem is the way I downloaded the textures it's not symmetric alr neither is the switching texture
                  */
-
-                double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
-                g2d.rotate(angle, initX + (stdSize + stdTrim) / 2.0, initY + (stdSize + stdTrim) / 2.0); // now that we know how much to rotate can rotate it, we need to trin it alr
                 // if we were to do it the transformation from scratch without g2d then more math, simple g2d is used for transforming takes angle and two position as an args, for 3d we have some other complex concepts like orthographic projection.
-                g.drawImage(main_character, initX, initY, stdSize + stdTrim, stdSize + stdTrim, this); // bad of me I trimmed based on visuals, also written in sucha way that it does not flies to the moon
-                g2d.setTransform(oldTransform); // when we transform using the arc tangent 2 function it glitches so we are re-storing the old transform state so it does not affect our opponent character
-                /* We can span all the opponent on 430, 120 */
+                renderCharacter(new Point(initX, initY), g);
                 g.setColor(Color.RED);
 
                 int enemyRenderLoopCount = 0;
@@ -364,8 +350,16 @@ class Frame {
                 // game is little slow over time
                 enemyMovementLogic(g); // for better readability
             }
+            for (Point p : markerPoint) {
+                g.setColor(Color.RED);
+                g.drawRect(p.x, p.y, 1, 1);
+            }
+
+            g.setColor(Color.decode("#7856cb"));
+
             frameCount++;
         }
+
 
         /* The problem when detecting a collision with ghost is, when the ghost itself approaches the character then the collision is detected,
          * else it's not. let's fix that we can for every character movement to loop and check if we collided with the ghost */
@@ -446,7 +440,6 @@ class Frame {
                 # Here are few set of rules that enemy will follow when moving.
                 # It's going to turn back if it cannot move in current direction it's moving and no choices are left.
             */
-
             currentEnemy.setDirection(changeDirection);
         }
 
@@ -458,42 +451,84 @@ class Frame {
             | 3         | 0           | 1           | Down          |
          */
 
-        ArrayList<Point> markerPoint = new ArrayList<>();
+        ArrayList<Point> markerPoint = new ArrayList<>(); // this is for testing,
+
 
         private void vectorChange(int vectorChangeMag) {
             /* In our earlier code we did things in the "hard" way. Now what can we do is first,
              * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
-            Point currentCharacterPoint = new Point(initX, initY);
+            int trimX = vectorX[direction] != 0 ? initX - stdSize : initX; // when using moveable.contains() returns coordinate of the front, so we are decreasing
+            int trimY = vectorY[direction] != 0 ? initY - stdSize : initY;
+
+            Point currentCharacterPoint = new Point(trimX, trimY);
 
             int reqX = currentCharacterPoint.x, reqY = currentCharacterPoint.y, count = 0;
+            // when we wish to turn, instead of making it turn, when the coordinate of the grid.contains(pacman coordinate)
+            // what we can do is, we could check the coordinate of the grid and check for the pac man center to be on the gird center
 
             Point turnPoint = null;
             Point turnTo = null;
 
-            if (moveable.contains(currentCharacterPoint)) {
-                while (true) {
-                    if (count > changeDirectionWithin) {
-                        break;
-                    }
-                    Point testPoint = new Point(reqX, reqY);
-                    markerPoint.add(new Point(reqX, reqY));
-                    testPoint.x += vectorX[vectorChangeMag];
-                    testPoint.y += vectorY[vectorChangeMag];
-                    if (moveable.contains(testPoint)) {
-                        turnPoint = new Point(reqX, reqY);
-                        turnTo = testPoint; // this is the point where we want to turn to
-                        break;
-                    }
-                    reqX += vectorX[direction];
-                    reqY += vectorY[direction];
-                    count++;
+            // this is just extra layer of protection to check if we are in the "grid"
+
+            /* Let's see thing in slow motion okay, now, let's see the predicted path.
+             * First of all the problem is, when we want to change the direction, when the character is exactly over the turn,
+             * it's not going change it
+             *
+             *
+             * I was in illusion that gird is perfectly connected to each other, that's how I thought it was, if it was,
+             * then the calculation would be simple would work the way it should, but they way we render that gird in maize.java
+             * can connect grid that are connected half way through yk what I mean. */
+            while (true) {
+                if (count > changeDirectionWithin) {
+                    break;
                 }
+                Point testPoint = new Point(reqX, reqY);
+
+                testPoint.x += vectorX[vectorChangeMag];
+                testPoint.y += vectorY[vectorChangeMag];
+
+                if (moveable.contains(testPoint)) {
+                    turnPoint = new Point(reqX, reqY);
+                    turnTo = testPoint; // this is the point where we want to turn to
+                    break;
+                }
+
+                reqX += vectorX[direction];
+                reqY += vectorY[direction];
+                count++;
             }
+
+            // after the turning decision has been made we need to turn it here,
+            // we loose frame if we render from the above method, since this method depends upon event binding.
             if (!(turnPoint == null)) {
                 changeTo = turnTo;
                 changeIn = turnPoint;
+                markerPoint.add(changeTo);
                 requestedVector = vectorChangeMag;
             }
+            // instead of all that let's render that
+        }
+
+        private void renderCharacter(Point position, Graphics g) throws IOException {
+            // image might not load so
+            Image main_character = ImageIO.read(new File(characterTextureSeq.get(characterTextureIndex))); // Gemini generated image
+            if (timeCounter % 1 == 0) {
+                characterTextureIndex++;
+                if (characterTextureIndex > characterTextureSeq.size() - 1) {
+                    characterTextureIndex = 0;
+                }
+            }
+            Graphics2D g2d = (((Graphics2D) g));
+            AffineTransform oldTransform = g2d.getTransform();
+
+
+            double angle = arcTangent(vectorYBin[direction], vectorXBin[direction]); // output in degrees
+            g2d.rotate(angle, initX + (stdSize + stdTrim) / 2.0, initY + (stdSize + stdTrim) / 2.0); // now that we know how much to rotate can rotate it, we need to train it alr
+
+            g.drawImage(main_character, position.x, position.y, stdSize + stdTrim, stdSize + stdTrim, this);
+            g2d.setTransform(oldTransform); // when we transform using the arc tangent 2 function it glitches so we are re-storing the old transform state so it does not affect our opponent character
+            /* We can span all the opponent on 430, 120 */
         }
 
         @Override
@@ -501,9 +536,10 @@ class Frame {
             super.paintComponent(g); // calling the constructor from the super class, for cleaning content in the canvas
 
             Graphics2D g2 = (Graphics2D) g; // graphics 2d have more features like transformation and more. So we are converting it.
-            g2.setStroke(new BasicStroke(9)); // thickness of line
+            g2.setStroke(new BasicStroke(1)); // thickness of line
             g2.setColor(Color.decode("#7856cb"));
             setBackground(Color.decode("#293b59"));
+
 
             Grid maizeGrid = new Grid(g2);
             maizeGrid.buildGrid(); // after we build the grid then the coordinates get loaded here.
