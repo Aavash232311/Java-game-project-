@@ -131,7 +131,7 @@ class Frame {
             /* In our pacman game we need to draw some fix boundaries, which we are going to declare some
              * fix coordinates here */
             // init delay: 20
-            Timer timer = new Timer(100, this);
+            Timer timer = new Timer(150, this);
             timer.start();
         }
 
@@ -150,15 +150,13 @@ class Frame {
         int initX = 80;
         int initY = 50;
         int direction = 1;
-        int changeDirectionWithin = 5;
         ArrayList<Point> moveable = new ArrayList<>();
 
         Point lastGrid = new Point();
         final int stdTrim = 3; // some constant for making sure the character fits
 
-        Point changeIn = null;
-        Point changeTo = null;
         int requestedVector = -1;
+        int predictCount = 0;
 
         int frameCount = 1;
 
@@ -209,21 +207,24 @@ class Frame {
              * Since it's running in a high frame rate the increment of rate is a bit smooth and once in a while
              * the coordinates of our character with the items in our array list.
              */
-            Graphics2D g2d = (((Graphics2D) g));
-            AffineTransform oldTransform = g2d.getTransform();
 
             g.setColor(Color.BLUE);
 
-            if (changeIn != null && changeTo != null) {
-                /* Here this init x is the coordinate of the near end of the block. */
-                if (changeIn.x == initX && changeIn.y == initY) {
-                    /* now we change the directions  */
+
+            // for changing coordinate
+            if (!(requestedVector == -1)) {
+
+                Point requestedPoint = new Point(initX, initY);
+                requestedPoint.x += vectorX[requestedVector];
+                requestedPoint.y += vectorY[requestedVector];
+
+
+                if (moveable.contains(requestedPoint)) {
                     direction = requestedVector;
-                    requestedVector = -1;
-                    changeIn = null;
-                    changeTo = null;
                 }
             }
+
+
 
             /* like in the original pac man game we might want to check if the pac man is in the what's called
              * an edge or on the border box we want it to stop so let's check that in the same way we did when adding movement logic. */
@@ -453,61 +454,18 @@ class Frame {
 
         ArrayList<Point> markerPoint = new ArrayList<>(); // this is for testing,
 
+        /*
+         Instead of predicting using while() look for tiles so that the pac man turns we can actually
+          check on each iteration, yk what I mean.
+        */
 
         private void vectorChange(int vectorChangeMag) {
-            /* In our earlier code we did things in the "hard" way. Now what can we do is first,
-             * get the block in which we are, loop till 5 blocks example if we found nearest block earlier then we can simply skip the cost function part. */
-            int trimX = vectorX[direction] != 0 ? initX - stdSize : initX; // when using moveable.contains() returns coordinate of the front, so we are decreasing
-            int trimY = vectorY[direction] != 0 ? initY - stdSize : initY;
-
-            Point currentCharacterPoint = new Point(trimX, trimY);
-
-            int reqX = currentCharacterPoint.x, reqY = currentCharacterPoint.y, count = 0;
-            // when we wish to turn, instead of making it turn, when the coordinate of the grid.contains(pacman coordinate)
-            // what we can do is, we could check the coordinate of the grid and check for the pac man center to be on the gird center
-
-            Point turnPoint = null;
-            Point turnTo = null;
-
-            // this is just extra layer of protection to check if we are in the "grid"
-
-            /* Let's see thing in slow motion okay, now, let's see the predicted path.
-             * First of all the problem is, when we want to change the direction, when the character is exactly over the turn,
-             * it's not going change it
-             *
-             *
-             * I was in illusion that gird is perfectly connected to each other, that's how I thought it was, if it was,
-             * then the calculation would be simple would work the way it should, but they way we render that gird in maize.java
-             * can connect grid that are connected half way through yk what I mean. */
-            while (true) {
-                if (count > changeDirectionWithin) {
-                    break;
-                }
-                Point testPoint = new Point(reqX, reqY);
-
-                testPoint.x += vectorX[vectorChangeMag];
-                testPoint.y += vectorY[vectorChangeMag];
-
-                if (moveable.contains(testPoint)) {
-                    turnPoint = new Point(reqX, reqY);
-                    turnTo = testPoint; // this is the point where we want to turn to
-                    break;
-                }
-
-                reqX += vectorX[direction];
-                reqY += vectorY[direction];
-                count++;
-            }
-
-            // after the turning decision has been made we need to turn it here,
-            // we loose frame if we render from the above method, since this method depends upon event binding.
-            if (!(turnPoint == null)) {
-                changeTo = turnTo;
-                changeIn = turnPoint;
-                markerPoint.add(changeTo);
-                requestedVector = vectorChangeMag;
-            }
-            // instead of all that let's render that
+            /* Whole different approach here,
+            * Problem was insane for a beginner level project.
+            * Academically I am labeled as a beginner but nearly half a decade of programming couldn't solve it.
+            * I don't want to talk about it, but if I needed to make this again I would use non-linear data structure like graph.
+            *  */
+            requestedVector = vectorChangeMag;
         }
 
         private void renderCharacter(Point position, Graphics g) throws IOException {
