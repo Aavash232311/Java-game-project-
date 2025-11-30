@@ -112,9 +112,11 @@ class Frame {
             // adding life icons ❤️, you can touch enemy here as long your life does not end
             String lifeTexturePath = "./textures/heart.png";
             int initialX = 530;
-            for (int i = 0; i < life; i++) {
-                lifeTextureSeq.add(new Cheery(lifeTexturePath, new Point(initialX, 10)));
-                initialX += 15;
+            if (life > 0) {
+                for (int i = 0; i < life; i++) {
+                    lifeTextureSeq.add(new Cheery(lifeTexturePath, new Point(initialX, 10)));
+                    initialX += 15;
+                }
             }
 
             // let's initialize enemy span point fix coordinate from then we can add the movement logic for the enemy.
@@ -130,8 +132,7 @@ class Frame {
             addKeyListener(this); // https://www.geeksforgeeks.org/java/interfaces-in-java/ reference link about interface and implements
             /* In our pacman game we need to draw some fix boundaries, which we are going to declare some
              * fix coordinates here */
-            // init delay: 20
-            Timer timer = new Timer(150, this);
+            Timer timer = new Timer(100, this);
             timer.start();
         }
 
@@ -156,11 +157,9 @@ class Frame {
         final int stdTrim = 3; // some constant for making sure the character fits
 
         int requestedVector = -1;
-        int predictCount = 0;
 
         int frameCount = 1;
 
-        boolean touched = false;
 
         /*
          * This a concept from the snake game I made, earlier in my projects
@@ -197,6 +196,10 @@ class Frame {
          * array of moveable. */
 
         int enemyMoveCount = 0; // this counts how many enemy have moved in like 5 second interval
+        boolean lostGame = false;
+
+        int mortalCount = 0;
+        boolean touchedGhost = false;
 
 
         private void movementLogic(Grid grid, Graphics g) {
@@ -261,6 +264,47 @@ class Frame {
             g.drawString("Point: " + points, 50, 30);
             // this block for flipping back and forth between the textures so that it looks like the character is making movements.
             try {
+                // if lost game, since no graphics passed to the collision method
+                if (lostGame) {
+                    g.setColor(Color.RED);
+                    g.setFont(new Font("Arial", Font.BOLD, 24));
+                    g.drawString("Lost game", 235, 150);
+                    direction = 4; // stop game over!
+                    return;
+                }
+
+                if (points == 5) {
+                    g.setColor(Color.ORANGE);
+                    g.setFont(new Font("Arial", Font.BOLD, 24));
+                    g.drawString("Winner!!", 235, 150);
+                    direction = 4; // stop game over!
+                }
+
+                // let's check the collision between ghost and character
+                // for that bug in control I ain't gonna debug due to time, also the entre logic will be needed to be re written.
+                if (!(touchedGhost)) {
+                    for (EnemyCoordinateTrack enemy : enemyCoordinateTrack) {
+                        Point currentPosition = enemy.getEnemyCoordinate();
+                        if (currentPosition.equals(new Point(initX, initY))) {
+                            // after removing let's make our character immortal for few seconds,
+                            removeLife();
+                            touchedGhost = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Ignore the touch for like 4 seconds
+                if (touchedGhost) {
+                    if (timeCounter % 50 == 0) {
+                        mortalCount++;
+                    }
+
+                    if (mortalCount >= 5) {
+                        touchedGhost = false;
+                        mortalCount = 0;
+                    }
+                }
 
                 if (eaten_food != -1) {
                     // since it showed me an error when trying to remove while iterating
@@ -285,7 +329,7 @@ class Frame {
                     Image heatImage = ImageIO.read(new File(currentLifeIcon._path));
                     Point heartCoordinate = currentLifeIcon._coordinate;
                     // let's have that blink effect when, we touch character
-                    if (touched) {
+                    if (touchedGhost) {
                         if (timeCounter % 5 == 0) {
                             g.drawImage(heatImage, heartCoordinate.x, heartCoordinate.y, stdSize + stdTrim, stdSize + stdTrim, this);
                         }
@@ -351,14 +395,26 @@ class Frame {
                 // game is little slow over time
                 enemyMovementLogic(g); // for better readability
             }
-            for (Point p : markerPoint) {
-                g.setColor(Color.RED);
-                g.drawRect(p.x, p.y, 1, 1);
-            }
+            // just to test
+//            for (Point p : markerPoint) {
+//                g.setColor(Color.RED);
+//                g.drawRect(p.x, p.y, 1, 1);
+//            }
+
+//            markerPoint.add(new Point(initX, initY));
 
             g.setColor(Color.decode("#7856cb"));
 
             frameCount++;
+        }
+
+        private void removeLife() {
+            if (!(lifeTextureSeq.isEmpty())) {
+                lifeTextureSeq.remove(lifeTextureSeq.size() - 1);
+            }else {
+                // if we have no life then we lost the game
+                lostGame = true;
+            }
         }
 
 
@@ -389,6 +445,16 @@ class Frame {
                     // just like we did with the last index of vector-x and vector-y for our main character
                     if ((moveable.contains(new Point(currentPoint.x + vectorX[currentEnemy.getDirection()], currentPoint.y + vectorY[currentEnemy.getDirection()])))) {
                         // I forgot and some point, when we define some instance of a class, memory is allocated for that, and if we update that from here it gets updated
+
+                        // since both are in motion, kind of like Doppler effect but not really, but kind of
+
+                        if (currentPoint.equals(new Point(initX, initY)) && !touchedGhost) {
+                            System.out.println("Touched from enemy");
+                            removeLife();
+                            touchedGhost = true;
+                        }
+
+
                         currentPoint.x += vectorX[currentEnemy.getDirection()];
                         currentPoint.y += vectorY[currentEnemy.getDirection()];
 
@@ -465,6 +531,12 @@ class Frame {
             * Academically I am labeled as a beginner but nearly half a decade of programming couldn't solve it.
             * I don't want to talk about it, but if I needed to make this again I would use non-linear data structure like graph.
             *  */
+            Point predicted = new Point(initX, initY);
+            predicted.x += vectorX[vectorChangeMag];
+            predicted.y += vectorY[vectorChangeMag];
+
+//            markerPoint.add(predicted);
+
             requestedVector = vectorChangeMag;
         }
 
@@ -494,7 +566,7 @@ class Frame {
             super.paintComponent(g); // calling the constructor from the super class, for cleaning content in the canvas
 
             Graphics2D g2 = (Graphics2D) g; // graphics 2d have more features like transformation and more. So we are converting it.
-            g2.setStroke(new BasicStroke(1)); // thickness of line
+            g2.setStroke(new BasicStroke(8)); // thickness of line
             g2.setColor(Color.decode("#7856cb"));
             setBackground(Color.decode("#293b59"));
 
