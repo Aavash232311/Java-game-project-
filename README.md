@@ -18,7 +18,6 @@ The goal of this project was to recreate the core mechanics of Pac-Man to better
 * **Dynamic Collision Detection:** Real-time calculation of intersections between Pac-Man, the environment (walls/pellets), and Ghost entities.
 * **Ghost AI:** Automated movement logic for enemy entities to provide a challenging gameplay experience.
 * **Score Management:** System to track and render the player's score based on objective completion.
-* **Game State Control:** Managed transitions between 'Ready', 'Playing', and 'Game Over' states.
 
 ## Technical Implementation Details
 
